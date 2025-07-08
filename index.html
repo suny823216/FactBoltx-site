@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>YouTube Channel Info - Improved</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+
+  <!-- Login Page -->
+  <div class="card" id="welcome-screen">
+    <img src="suny.png" class="circle-logo" />
+    <h1>ENTER CHANNEL NAME</h1>
+    <a href="https://www.instagram.com/rajput_sany1?utm_source=ig_web_button_share_sheet&igsh=a2ZoM3gxY3psa3g=" target="_blank">@rajput_sany1</a>
+    <input type="text" id="channel-name" placeholder="Enter channel name" />
+    <input type="password" id="channel-password" placeholder="Enter password" style="margin-top: 10px;" />
+    <button onclick="loadChannel()">Login ➜</button>
+  </div>
+
+  <!-- Main Dashboard -->
+  <div id="main-container" style="display: none;">
+    <h2 id="channel-subs">Subscribers: ...</h2>
+
+    <div id="video-select-container" style="display: none;">
+      <label for="video-select">SELECT VIDEO:</label>
+      <select id="video-select" onchange="showVideoDetails()"></select>
+      
+    </div>
+
+    <div id="loading-spinner" style="display: none;">
+      <img src="https://i.gifer.com/ZZ5H.gif" alt="Loading..." width="60" />
+    </div>
+
+    <div class="video-details" id="video-details" style="display: none;">
+      <a id="video-link" href="#" target="_blank" rel="noopener noreferrer">
+        <img id="video-thumb" class="video-thumb" src="" alt="Thumbnail" />
+      </a>
+
+      <div class="video-title" id="video-title"></div>
+
+      <div class="video-script" id="video-script"></div>
+      <button class="copy-btn" id="copy-script-btn" onclick="copyScript()">📋 Copy Script</button>
+
+      <div class="badges">
+        <div class="badge" id="video-views"></div>
+        <div class="badge" id="video-likes"></div>
+        <div class="badge" id="video-watch"></div>
+        <div class="badge" id="video-upload-time"></div>
+      </div>
+
+      <div class="hashtags">
+        <div class="hashtag-text" id="video-hashtags"></div>
+        <div class="hashtag-actions">
+          <button class="copy-btn" onclick="copyHashtags()">📋 Copy Hashtags</button>
+          <button class="copy-btn" onclick="shareWhatsApp()">📱 Share WhatsApp</button>
+          <button class="copy-btn" onclick="shareTwitter()">🐦 Share Twitter</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Script -->
+  <script src="script.js"></script>
+</body>
+</html>
