@@ -20,6 +20,7 @@
     <button onclick="loadChannel()">Login ➜</button>
   </div>
 
+
   <!-- Main Dashboard -->
   <div id="main-container" style="display: none;">
     <h2 id="channel-subs">Subscribers: ...</h2>
@@ -29,6 +30,16 @@
       <select id="video-select" onchange="showVideoDetails()"></select>
       
     </div>
+    <div id="add-video-form" style="margin-top: 30px;">
+  <h3>➕ Add New Video</h3>
+  <input type="text" id="new-title" placeholder="Video Title" />
+  <input type="text" id="new-id" placeholder="YouTube Video ID" />
+  <input type="date" id="new-date" />
+  <textarea id="new-script" placeholder="Video Script"></textarea>
+  <textarea id="new-hashtags" placeholder="Hashtags (comma or space separated)"></textarea>
+  <button onclick="addNewVideo()">➕ Add Video</button>
+</div>
+
 
     <div id="loading-spinner" style="display: none;">
       <img src="https://i.gifer.com/ZZ5H.gif" alt="Loading..." width="60" />
