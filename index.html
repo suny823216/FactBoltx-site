@@ -23,22 +23,24 @@
 
   <!-- Main Dashboard -->
   <div id="main-container" style="display: none;">
+    <div id="channel-header" style="text-align: center; margin-bottom: 20px;">
+    <img src="channels4_banner.jpg" src="" alt="Channel Banner" style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 12px;" />
+   <div style="text-align: center; margin-top: 10px;">
+  <h1 style="color: white; margin: 5px 0;">FactBoltx</h1>
+  <p style="color: #aaa; margin: 0;">@FactsBoltX • 100 subscribers • 17 videos</p>
+  <p style="color: #ccc; font-size: 14px; max-width: 600px; margin: 8px auto;">
+    Welcome to factsboltX 😊 – your daily dose of fascinating facts and hidden truths.
+  </p>
+</div>
+
+  </div>
     <h2 id="channel-subs">Subscribers: ...</h2>
 
     <div id="video-select-container" style="display: none;">
       <label for="video-select">SELECT VIDEO:</label>
       <select id="video-select" onchange="showVideoDetails()"></select>
       
-    </div>
-    <div id="add-video-form" style="margin-top: 30px;">
-  <h3>➕ Add New Video</h3>
-  <input type="text" id="new-title" placeholder="Video Title" />
-  <input type="text" id="new-id" placeholder="YouTube Video ID" />
-  <input type="date" id="new-date" />
-  <textarea id="new-script" placeholder="Video Script"></textarea>
-  <textarea id="new-hashtags" placeholder="Hashtags (comma or space separated)"></textarea>
-  <button onclick="addNewVideo()">➕ Add Video</button>
-</div>
+   
 
 
     <div id="loading-spinner" style="display: none;">
