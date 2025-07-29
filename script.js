@@ -106,52 +106,9 @@ function addNewVideo() {
     color: '#fff'
   });
 
+
+
   showVideoDetails();
-}
-function deleteCurrentVideo() {
-  const name = document.getElementById('channel-name').value.trim();
-  const key = document.getElementById('video-select').value;
-
-  Swal.fire({
-    title: 'Are you sure?',
-    text: "This video will be permanently deleted.",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#e74c3c',
-    cancelButtonColor: '#3085d6',
-    confirmButtonText: 'Yes, delete it!',
-    background: '#1e1e2f',
-    color: '#fff'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      // Delete from object
-      delete videos[name][key];
-
-      // Save updated object
-      localStorage.setItem("ytScriptVideos", JSON.stringify(videos));
-
-      // Remove from dropdown
-      const select = document.getElementById('video-select');
-      const optionToRemove = select.querySelector(`option[value="${key}"]`);
-      if (optionToRemove) optionToRemove.remove();
-
-      // Reset UI
-      if (select.options.length > 0) {
-        select.selectedIndex = 0;
-        showVideoDetails();  // Show next available video
-      } else {
-        document.getElementById('video-details').style.display = 'none';
-      }
-
-      Swal.fire({
-        icon: 'success',
-        title: 'Deleted!',
-        text: 'Your video has been deleted.',
-        background: '#1e1e2f',
-        color: '#fff'
-      });
-    }
-  });
 }
 
 function loadChannel() {
@@ -337,6 +294,7 @@ function shareTwitter() {
   window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}&hashtags=${hashtags}`, '_blank');
 }
 
+
 function loadSubscriberCount(channelName) {
   let channelId;
 
@@ -363,6 +321,61 @@ function loadSubscriberCount(channelName) {
     .catch(() => {
       document.getElementById('channel-subs').innerText = "Subscribers: Unknown";
     });
+}
+
+function deleteCurrentVideo() {
+  const name = document.getElementById('channel-name').value.trim();
+  const key = document.getElementById('video-select').value;
+
+  if (!videos[name] || !videos[name][key]) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Video Not Found',
+      text: 'Selected video does not exist.',
+      background: '#1e1e2f',
+      color: '#fff'
+    });
+    return;
+  }
+
+  Swal.fire({
+    title: 'Are you sure?',
+    text: "This will permanently delete the selected video!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#e74c3c',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Yes, delete it!',
+    background: '#1e1e2f',
+    color: '#fff'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      delete videos[name][key];
+      localStorage.setItem(localStorageKey, JSON.stringify(videos));
+
+      const select = document.getElementById('video-select');
+      const optionToRemove = select.querySelector(`option[value="${key}"]`);
+      if (optionToRemove) select.removeChild(optionToRemove);
+
+      const remainingKeys = Object.keys(videos[name]);
+      if (remainingKeys.length > 0) {
+        select.value = remainingKeys[0];
+        showVideoDetails();
+      } else {
+        document.getElementById('video-details').style.display = 'none';
+        document.getElementById('copy-script-btn').style.display = 'none';
+        select.innerHTML = '';
+      }
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Deleted!',
+        text: 'Video has been deleted successfully.',
+        background: '#1e1e2f',
+        color: '#fff'
+      });
+    }
+  });
 }
 
   
