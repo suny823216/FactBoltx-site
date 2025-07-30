@@ -1,203 +1,28 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>YouTube Channel Info - Improved</title>
-  <link rel="stylesheet" href="style.css" />
-  
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>YouTube Channel Intro</title>
+  <link rel="stylesheet" href="style.css"/>
+  <!-- Font Awesome link for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 </head>
 <body>
-
-  <!-- Login Page -->
-  <div class="card" id="welcome-screen">
-    <img src="suny.png" class="circle-logo" />
-    <h1 class="zoom-in glow">Enter Channel Name</h1>
-
-
-    
-    <input type="text" id="channel-name" placeholder="Enter channel name" />
-    <input type="password" id="channel-password" placeholder="Enter password" style="margin-top: 10px;" />
-    <button onclick="loadChannel()">Login ➜</button>
-    <!-- Time Display -->
-<div id="liveTime"></div>
-
-<style>
-#liveTime {
-  position: fixed;
-  top: 10px;
-  right: 20px;
-  color: #ffffff;
-  font-size: 16px;
-  font-family: 'Courier New', monospace;
-  background: rgba(0, 0, 0, 0.3);
-  padding: 6px 10px;
-  border-radius: 8px;
-  z-index: 1000;
-  box-shadow: 0 0 8px #00ffe0;
-}
-</style>
-
-<script>
-function updateTime() {
-  const now = new Date();
-  const hours = now.getHours().toString().padStart(2, '0');
-  const minutes = now.getMinutes().toString().padStart(2, '0');
-  const seconds = now.getSeconds().toString().padStart(2, '0');
-  const timeString = `${hours}:${minutes}:${seconds}`;
-  document.getElementById('liveTime').textContent = timeString;
-}
-
-setInterval(updateTime, 1000);
-updateTime();
-</script>
-
-  </div>
-
-
-  <!-- Main Dashboard -->
-  <div id="main-container" style="display: none;">
-    <div id="channel-header" style="text-align: center; margin-bottom: 20px;">
-    <img src="channels4_banner.jpg" src="" alt="Channel Banner" style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 12px;" />
-   <div style="text-align: center; margin-top: 10px;">
-  <h1 style="color: white; margin: 5px 0;">FactBoltx</h1>
-  <p style="color: #aaa; margin: 0;">@FactsBoltX • 100 subscribers • 17 videos</p>
-  <p style="color: #ccc; font-size: 14px; max-width: 600px; margin: 8px auto;">
-    Welcome to factsboltX 😊 – your daily dose of fascinating facts and hidden truths.
-  </p>
-</div><button onclick="toggleForm()" class="copy-btn">➕ Upload Video</button>
-
-<div id="video-form-container" style="display: none; margin-top: 20px;">
   
-  
-
-  <div style="background: #222; padding: 20px; border-radius: 10px; max-width: 600px; margin: 0 auto;">
-    <input id="new-title" type="text" placeholder="Enter Video Title" class="form-input" /><br><br>
-    <input id="new-id" type="text" placeholder="Enter YouTube Video ID" class="form-input" /><br><br>
-    <input id="new-date" type="date" class="form-input" /><br><br>
-    <textarea id="new-script" rows="5" placeholder="Paste script here" class="form-input"></textarea><br><br>
-    <textarea id="new-hashtags" rows="3" placeholder="Enter hashtags" class="form-input"></textarea><br><br>
-    <button onclick="addNewVideo()" class="copy-btn">✅ Add Video</button>
-    
-  </div>
- 
-
-</div>
-
-
-  </div>
-    <h2 id="channel-subs">Subscribers: ...</h2>
-
-    <div id="video-select-container" style="display: none;">
-      <label for="video-select">SELECT VIDEO:</label>
-      <select id="video-select" onchange="showVideoDetails()"></select>
-      
-   
-
-
-    <div id="loading-spinner" style="display: none;">
-      <img src="https://i.gifer.com/ZZ5H.gif" alt="Loading..." width="60" />
-     
-
-    </div>
-
-    <div class="video-details" id="video-details" style="display: none;">
-      <a id="video-link" href="#" target="_blank" rel="noopener noreferrer">
-        <img id="video-thumb" class="video-thumb" src="" alt="Thumbnail" />
-      </a>
-
-      <div class="video-title" id="video-title"></div>
-
-      <div class="video-script" id="video-script"></div>
-     <button onclick="deleteCurrentVideo()" id="delete-btn">
-  <i class="fa-solid fa-trash-can"></i> 
-</button>
-
-
-
-      <button class="copy-btn" id="copy-script-btn" onclick="copyScript()">📋 Copy Script</button>
-
-      <div class="badges">
-        <div class="badge" id="video-views"></div>
-        <div class="badge" id="video-likes"></div>
-        <div class="badge" id="video-watch"></div>
-        <div class="badge" id="video-upload-time"></div>
-      </div>
-
-      <div class="hashtags">
-        <div class="hashtag-text" id="video-hashtags"></div>
-        <div class="hashtag-actions">
-          <button class="copy-btn" onclick="copyHashtags()">📋 Copy Hashtags</button>
-          <button class="copy-btn" onclick="shareWhatsApp()">📱 Share WhatsApp</button>
-          <button class="copy-btn" onclick="shareTwitter()">🐦 Share Twitter</button>
-        </div>
+  <div class="container">
+    <div class="channel-box">
+      <img src="suny.png" id="channel-logo" />
+      <h2 id="channel-name">FactBoltx</h2>
+      <button id="subscribe-btn">
+        Subscribe <i class="fa-brands fa-youtube"></i>
+      </button>
+      <div class="arrow" id="arrow">
+        <i class="fa-regular fa-hand-pointer"></i>
       </div>
     </div>
   </div>
 
-  <!-- Script -->
   <script src="script.js"></script>
-  <script>
-  function toggleForm() {
-    const form = document.getElementById("video-form-container");
-    if (form.style.display === "none") {
-      form.style.display = "block";
-    } else {
-      form.style.display = "none";
-    }
-  }
-</script>
-<script>
-function login() {
-  const channel = document.getElementById("channel").value.trim().toLowerCase();
-  const pass = document.getElementById("pass").value.trim();
-
-  if (channel === "ds" && pass === "1234") {
-    // Voice welcome
-    const msg = new SpeechSynthesisUtterance("WELCOME TO DS PAGE");
-    window.speechSynthesis.speak(msg);
-
-    // Delay 2 seconds and redirect
-    setTimeout(() => {
-      window.location.href = "home.html"; // ← Apka agla page yahaan daalein
-    }, 2000);
-  } else {
-    alert("Invalid Channel Name or Password");
-  }
-}
-</script>
-
-
- <script type="module"> 
-    // ✅ Firebase App और Realtime Database import करें
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getDatabase, ref, set, get, child, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-
-    // ✅ तुम्हारा Firebase config
-    const firebaseConfig = {
-      apiKey: "AIzaSyDUefeJbHKIAs-l3zvFlGaas6VD63vv4kI",
-      authDomain: "inspire4ever-c60ad.firebaseapp.com",
-      databaseURL: "https://inspire4ever-c60ad-default-rtdb.firebaseio.com",
-      projectId: "inspire4ever-c60ad",
-      storageBucket: "inspire4ever-c60ad.firebasestorage.app",
-      messagingSenderId: "125014633127",
-      appId: "1:125014633127:web:d29e4c37628ab637f40982",
-      measurementId: "G-PNHJC0LRVQ"
-    };
-
-    // ✅ Firebase initialize करो
-    const app = initializeApp(firebaseConfig);
-
-    // ✅ Realtime Database की instance लो
-    const db = getDatabase(app);
-
-    // अब तुम data `set()` या `get()` कर सकते हो
-  </script>
-
 </body>
 </html>
-

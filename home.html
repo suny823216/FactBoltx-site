@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Home | Inspire4Ever</title>
+  <link rel="stylesheet" href="style.css"/>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDUefeJbHKIAs-l3zvFlGaas6VD63vv4kI",
+      authDomain: "inspire4ever-c60ad.firebaseapp.com",
+      projectId: "inspire4ever-c60ad",
+      storageBucket: "inspire4ever-c60ad.appspot.com",
+      messagingSenderId: "125014633127",
+      appId: "1:125014633127:web:d29e4c37628ab637f40982",
+      measurementId: "G-PNHJC0LRVQ",
+      databaseURL: "https://inspire4ever-c60ad-default-rtdb.firebaseio.com/"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+  </script>
+</head>
+<body>
+  <div class="upload-form">
+    <input id="title" placeholder="Video Title" />
+    <input id="videoId" placeholder="YouTube Video ID" />
+    <textarea id="script" placeholder="Video Script"></textarea>
+    <input id="hashtags" placeholder="#hashtag1 #hashtag2" />
+    <button onclick="uploadVideo()">Upload</button>
+  </div>
+
+  <div class="video-list" id="videoList"></div>
+
+  <script>
+    const apiKey = "AIzaSyAa5mJThKeXqIbcB_pBIE4jOlTw04Ej2fU";
+
+    function uploadVideo() {
+      const title = titleInput.value.trim();
+      const videoId = videoIdInput.value.trim();
+      const script = scriptInput.value.trim();
+      const hashtags = hashtagsInput.value.trim();
+
+      const date = new Date().toISOString();
+      const data = { title, videoId, script, hashtags, date };
+      const key = db.ref("videos").push().key;
+      db.ref("videos/" + key).set(data).then(() => location.reload());
+    }
+
+    function deleteVideo(key) {
+      db.ref("videos/" + key).remove().then(() => location.reload());
+    }
+
+    function loadVideos() {
+      db.ref("videos").once("value", snap => {
+        const list = document.getElementById("videoList");
+        list.innerHTML = "";
+        snap.forEach(child => {
+          const video = child.val();
+          const key = child.key;
+          const thumb = `https://img.youtube.com/vi/${video.videoId}/0.jpg`;
+          const ytURL = `https://www.youtube.com/watch?v=${video.videoId}`;
+
+          fetch(`https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${video.videoId}&key=${apiKey}`)
+          .then(res => res.json())
+          .then(data => {
+            const stats = data.items[0]?.statistics;
+            const views = stats ? Number(stats.viewCount).toLocaleString() : "N/A";
+
+            list.innerHTML += `
+              <div class="video-box">
+                <img src="${thumb}" onclick="window.open('${ytURL}', '_blank')" />
+                <h3>${video.title}</h3>
+                <p><strong>Script:</strong> ${video.script}</p>
+                <p><strong>Hashtags:</strong> ${video.hashtags}</p>
+                <p><strong>Views:</strong> ${views}</p>
+                <button onclick="navigator.clipboard.writeText('${video.hashtags}')">Copy Hashtags</button>
+                <button onclick="deleteVideo('${key}')">Delete</button>
+              </div>
+            `;
+          });
+        });
+      });
+    }
+
+    const titleInput = document.getElementById("title");
+    const videoIdInput = document.getElementById("videoId");
+    const scriptInput = document.getElementById("script");
+    const hashtagsInput = document.getElementById("hashtags");
+
+    window.onload = loadVideos;
+  </script>
+</body>
+</html>
