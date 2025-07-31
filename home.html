@@ -1,14 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Home | Inspire4Ever</title>
-  <link rel="stylesheet" href="home.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inspire4Ever | Video Manager</title>
+  <link rel="stylesheet" href="home.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-  <!-- Firebase -->
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyDUefeJbHKIAs-l3zvFlGaas6VD63vv4kI",
@@ -25,158 +27,250 @@
   </script>
 </head>
 <body>
-  <!-- Upload Button -->
-  <div style="text-align: center; margin: 20px;">
-    <button id="showFormBtn">📤 Upload Video</button>
+
+  <div class="top-bar">
+    <h2 id="subscriberCount">Subscribers: ...</h2>
+    <button onclick="verifyAdminCode()" id="adminCodeBtn">🔐 Admin Login</button>
+    <button id="showFormBtn" style="display:none">📤 Upload Video</button>
   </div>
 
-  <!-- Upload Form -->
-  <div class="upload-form" id="uploadForm" style="display: none;">
+  <div class="upload-form" id="uploadForm" style="display:none;">
     <input id="title" placeholder="Video Title" />
     <input id="videoId" placeholder="YouTube Video ID" />
-    <textarea id="script" placeholder="Video Script"></textarea>
-    <input id="hashtags" placeholder="#hashtag1 #hashtag2" />
+    <textarea id="script" placeholder="Video Script..."></textarea>
+    <input id="hashtags" placeholder="#hashtags" />
     <button onclick="uploadVideo()">Upload</button>
   </div>
 
   <div class="container">
     <h1>🎬 Video Manager</h1>
 
-    <!-- Dropdown -->
-    <select id="video-select"></select>
+    <select id="videoDropdown" onchange="onVideoSelect()"></select>
 
-    <!-- Thumbnail -->
-    <div id="video-section">
-      <img id="thumbnail" src="" alt="Video Thumbnail" class="video-thumb" style="max-width: 100%; height: auto;" />
+    <a id="videoLink" href="#" target="_blank">
+      <img id="thumbnail" src="" alt="Video Thumbnail" class="video-thumb" />
+    </a>
+
+    <div class="info-bar">
+      <div id="videoStats">
+        <span id="videoViews">👁️ Views: --</span>
+        <span id="videoLikes">👍 Likes: --</span>
+        <span id="videoDate">📅 Uploaded: --</span>
+      </div>
     </div>
 
-    <!-- Script -->
-    <textarea id="scriptArea" rows="6" placeholder="Video script here..."></textarea>
+<textarea id="scriptArea" rows="6" placeholder="Video Script..." readonly></textarea>
+<textarea id="hashtagArea" rows="3" placeholder="#hashtags" readonly></textarea>
 
-    <!-- Hashtags -->
-    <textarea id="hashtagArea" rows="3" placeholder="#hashtag1 #hashtag2 #hashtag3"></textarea>
 
-    <button onclick="copyScript()">📋 Copy Script</button>
-    <button onclick="deleteSelected()">🗑️ Delete</button>
+    <div class="button-group">
+      <button onclick="copyScript()" class="btn blue">📋 Copy Script</button>
+      <button onclick="updateVideo()" id="updateBtn" class="btn green" disabled>✏️ Update</button>
+      <button onclick="deleteSelected()" id="deleteBtn" class="btn red" disabled>🗑️ Delete</button>
+    </div>
   </div>
 
-  <!-- JavaScript -->
   <script>
+    const API_KEY = "AIzaSyAa5mJThKeXqIbcB_pBIE4jOlTw04Ej2fU";
+    const ADMIN_CODE = "deepak95";
+    let isAdmin = false;
+    let currentKey = null;
+    let allVideos = [];
+
     const titleInput = document.getElementById("title");
     const videoIdInput = document.getElementById("videoId");
     const scriptInput = document.getElementById("script");
     const hashtagsInput = document.getElementById("hashtags");
-
-    const dropdown = document.getElementById("video-select");
     const thumbnail = document.getElementById("thumbnail");
     const scriptArea = document.getElementById("scriptArea");
     const hashtagArea = document.getElementById("hashtagArea");
+    const showFormBtn = document.getElementById("showFormBtn");
+    const uploadForm = document.getElementById("uploadForm");
+    const adminCodeBtn = document.getElementById("adminCodeBtn");
+    const updateBtn = document.getElementById("updateBtn");
+    const deleteBtn = document.getElementById("deleteBtn");
+    const videoDropdown = document.getElementById("videoDropdown");
+    const subscriberCount = document.getElementById("subscriberCount");
+    const videoLink = document.getElementById("videoLink");
+    const videoViews = document.getElementById("videoViews");
+    const videoLikes = document.getElementById("videoLikes");
+    const videoDate = document.getElementById("videoDate");
 
-    let currentKey = null;
+    function verifyAdminCode() {
+      const code = prompt("Enter Admin Code:");
+      if (code === ADMIN_CODE) {
+        isAdmin = true;
+        localStorage.setItem("admin", "true");
+        showAdminControls();
+        alert("✅ Admin access granted.");
+      } else {
+        alert("❌ Invalid admin code.");
+      }
+    }
 
-    document.getElementById("showFormBtn").addEventListener("click", () => {
-      document.getElementById("uploadForm").style.display = "block";
-      document.getElementById("showFormBtn").style.display = "none";
+    function showAdminControls() {
+      showFormBtn.style.display = "inline-block";
+      updateBtn.disabled = false;
+      deleteBtn.disabled = false;
+      adminCodeBtn.style.display = "none";
+    }
+
+    showFormBtn.addEventListener("click", () => {
+      uploadForm.style.display = "block";
+      showFormBtn.style.display = "none";
     });
 
     function uploadVideo() {
+      if (!isAdmin) return alert("Admin access required");
       const title = titleInput.value.trim();
       const videoId = videoIdInput.value.trim();
       const script = scriptInput.value.trim();
       const hashtags = hashtagsInput.value.trim();
-      const date = new Date().toISOString();
-
       if (!title || !videoId || !script || !hashtags) {
-        alert("⚠️ Please fill in all fields.");
-        return;
+        return alert("⚠️ Please fill in all fields.");
       }
-
-      const data = { title, videoId, script, hashtags, date };
+      const data = { title, videoId, script, hashtags, date: new Date().toISOString() };
       const key = db.ref("videos").push().key;
-
       db.ref("videos/" + key).set(data).then(() => {
-        titleInput.value = "";
-        videoIdInput.value = "";
-        scriptInput.value = "";
-        hashtagsInput.value = "";
-
-        document.getElementById("uploadForm").style.display = "none";
-        document.getElementById("showFormBtn").style.display = "block";
-
-        loadVideos(videoId); // reload & auto-select uploaded one
+        resetUploadForm();
+        loadVideos(videoId);
       });
     }
 
-    dropdown.addEventListener("change", function () {
-      const selectedId = this.value;
-
-      db.ref("videos").orderByChild("videoId").equalTo(selectedId).once("value", snap => {
-        snap.forEach(child => {
-          const video = child.val();
-          currentKey = child.key;
-
-          thumbnail.src = `https://img.youtube.com/vi/${video.videoId}/hqdefault.jpg`;
-          scriptArea.value = video.script;
-          hashtagArea.value = video.hashtags;
-        });
+    function updateVideo() {
+      if (!isAdmin) return alert("Admin access required");
+      if (!currentKey) return alert("⚠️ Select a video first.");
+      const updatedData = {
+        title: titleInput.value.trim(),
+        videoId: videoIdInput.value.trim(),
+        script: scriptInput.value.trim(),
+        hashtags: hashtagsInput.value.trim(),
+        date: new Date().toISOString()
+      };
+      db.ref("videos/" + currentKey).update(updatedData).then(() => {
+        alert("✅ Video updated.");
+        loadVideos(updatedData.videoId);
       });
-    });
+    }
 
     function deleteSelected() {
-      if (!currentKey) {
-        alert("⚠️ Please select a video to delete.");
-        return;
-      }
-
-      const confirmDelete = confirm("Are you sure you want to delete this video?");
-      if (!confirmDelete) return;
-
+      if (!isAdmin) return alert("Admin access required");
+      if (!currentKey) return alert("⚠️ Select a video first.");
+      if (!confirm("Are you sure you want to delete this video?")) return;
       db.ref("videos/" + currentKey).remove().then(() => {
         alert("✅ Video deleted.");
-        thumbnail.src = "";
-        scriptArea.value = "";
-        hashtagArea.value = "";
-        dropdown.selectedIndex = 0;
-        currentKey = null;
-        loadVideos(); // reload list
+        resetDisplay();
+        loadVideos();
       });
     }
 
     function copyScript() {
-      const scriptText = `${scriptArea.value}\n\n${hashtagArea.value}`;
-      navigator.clipboard.writeText(scriptText).then(() => {
+      const text = `${scriptArea.value}\n\n${hashtagArea.value}`;
+      navigator.clipboard.writeText(text).then(() => {
         alert("📋 Copied to clipboard!");
       });
     }
 
-    function loadVideos(selectedVideoId = null) {
-      dropdown.innerHTML = ""; // clear previous
-      db.ref("videos").once("value", snap => {
-        let firstVideoId = null;
+    function resetUploadForm() {
+      titleInput.value = "";
+      videoIdInput.value = "";
+      scriptInput.value = "";
+      hashtagsInput.value = "";
+      uploadForm.style.display = "none";
+      showFormBtn.style.display = "inline-block";
+    }
 
-        snap.forEach((child, index) => {
-          const video = child.val();
-          const option = document.createElement("option");
-          option.value = video.videoId;
-          option.textContent = video.title;
+    function resetDisplay() {
+      thumbnail.src = "";
+      scriptArea.value = "";
+      hashtagArea.value = "";
+      currentKey = null;
+      videoDropdown.selectedIndex = 0;
+    }
 
-          if (index === 0) firstVideoId = video.videoId;
-          if (selectedVideoId && video.videoId === selectedVideoId) {
-            option.selected = true;
+    async function loadYouTubeData(videoId) {
+      try {
+        const videoRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&id=${videoId}&key=${API_KEY}`);
+        const videoData = await videoRes.json();
+        const video = videoData.items[0];
+        if (video) {
+          videoViews.textContent = `👁️ Views: ${video.statistics.viewCount}`;
+          videoLikes.textContent = `👍 Likes: ${video.statistics.likeCount}`;
+          videoDate.textContent = `📅 Uploaded: ${video.snippet.publishedAt.split("T")[0]}`;
+          const channelId = video.snippet.channelId;
+          const channelRes = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${channelId}&key=${API_KEY}`);
+          const channelData = await channelRes.json();
+          const channel = channelData.items[0];
+          if (channel) {
+            subscriberCount.textContent = `Subscribers: ${channel.statistics.subscriberCount}`;
           }
+        }
+      } catch (err) {
+        console.error("YouTube API Error", err);
+        videoViews.textContent = "👁️ Views: --";
+        videoLikes.textContent = "👍 Likes: --";
+        videoDate.textContent = "📅 Uploaded: --";
+        subscriberCount.textContent = "Subscribers: --";
+      }
+    }
 
-          dropdown.appendChild(option);
+    function loadVideos(selectedId = null) {
+      videoDropdown.innerHTML = "";
+      db.ref("videos").once("value", snap => {
+        allVideos = [];
+        snap.forEach(child => {
+          const video = child.val();
+          video.key = child.key;
+          allVideos.push(video);
         });
-
-        const toSelect = selectedVideoId || firstVideoId;
-        if (toSelect) {
-          dropdown.value = toSelect;
-          dropdown.dispatchEvent(new Event("change"));
+        allVideos.sort((a, b) => new Date(b.date) - new Date(a.date));
+        allVideos.forEach(video => {
+          const opt = document.createElement("option");
+          opt.value = video.key;
+          opt.textContent = video.title;
+          videoDropdown.appendChild(opt);
+        });
+        if (selectedId) {
+          const match = allVideos.find(v => v.videoId === selectedId);
+          if (match) {
+            videoDropdown.value = match.key;
+            populateDetails(match);
+          }
+        } else if (allVideos.length > 0) {
+          videoDropdown.value = allVideos[0].key;
+          populateDetails(allVideos[0]);
         }
       });
     }
 
-    window.onload = loadVideos;
+    function onVideoSelect() {
+      const key = videoDropdown.value;
+      const video = allVideos.find(v => v.key === key);
+      if (!video) return;
+      currentKey = key;
+      populateDetails(video);
+    }
+
+    function populateDetails(video) {
+      const vid = video.videoId;
+      thumbnail.src = `https://img.youtube.com/vi/${vid}/hqdefault.jpg`;
+      videoLink.href = `https://www.youtube.com/watch?v=${vid}`;
+      scriptArea.value = video.script;
+      hashtagArea.value = video.hashtags;
+      titleInput.value = video.title;
+      videoIdInput.value = video.videoId;
+      scriptInput.value = video.script;
+      hashtagsInput.value = video.hashtags;
+      loadYouTubeData(vid);
+    }
+
+    window.onload = () => {
+      loadVideos();
+      if (localStorage.getItem("admin") === "true") {
+        isAdmin = true;
+        showAdminControls();
+      }
+    };
   </script>
 </body>
 </html>
