@@ -1,0 +1,117 @@
+/* ===== Global Styles ===== */
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: 'Segoe UI', sans-serif;
+  background: #0e0e0e;
+  color: white;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+h1 {
+  color: #00ffc3;
+  font-size: 22px;
+  margin-bottom: 20px;
+  padding: 0 10px;
+}
+
+/* ===== Preview Section ===== */
+.preview {
+  margin: 10px auto;
+}
+
+.preview img {
+  width: 90%;
+  max-width: 300px;
+  border-radius: 8px;
+}
+
+/* ===== Game Container ===== */
+.game-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  margin-top: 20px;
+}
+
+/* ===== Drop Zone (Puzzle Grid) ===== */
+.drop-zone {
+  display: grid;
+  grid-template-columns: repeat(3, 80px);
+  grid-template-rows: repeat(3, 80px);
+  gap: 4px;
+  background-color: #222;
+  padding: 5px;
+  border-radius: 8px;
+}
+
+.drop-cell {
+  width: 80px;
+  height: 80px;
+  background: #111;
+  border: 2px dashed #444;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 4px;
+}
+
+/* ===== Pieces Section ===== */
+.pieces-zone {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  align-content: flex-start;
+  width: 100%;
+  max-width: 270px;
+  min-height: 270px;
+  border: 2px dashed #555;
+  border-radius: 8px;
+  padding: 8px;
+  background: #1a1a1a;
+}
+
+.piece {
+  width: 80px;
+  height: 80px;
+  background-repeat: no-repeat;
+  background-size: 240px 240px; /* gridSize*pieceSize */
+  transition: all 0.4s ease;
+  cursor: grab;
+  border-radius: 4px;
+}
+
+/* ===== Responsive for Tablets & Larger Phones ===== */
+@media (min-width: 500px) {
+  .drop-zone, .pieces-zone {
+    grid-template-columns: repeat(3, 100px);
+    grid-template-rows: repeat(3, 100px);
+  }
+
+  .drop-cell,
+  .piece {
+    width: 100px;
+    height: 100px;
+  }
+
+  .piece {
+    background-size: 300px 300px;
+  }
+
+  .pieces-zone {
+    max-width: 320px;
+    min-height: 310px;
+  }
+}
+
+/* ===== SweetAlert Fix for Dark Mode ===== */
+.swal2-popup {
+  font-size: 1rem !important;
+}
+.piece.locked {
+  cursor: not-allowed;
+  opacity: 0.8;
+}

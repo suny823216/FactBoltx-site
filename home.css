@@ -1,4 +1,3 @@
-/* ==== Global ==== */
 body {
   margin: 0;
   font-family: 'Segoe UI', sans-serif;
@@ -6,86 +5,50 @@ body {
   color: #fff;
 }
 
-/* ==== Upload Form ==== */
-.upload-form {
-  max-width: 700px;
-  margin: 40px auto;
-  background: #1f1f1f;
-  padding: 25px;
-  border-radius: 12px;
-  box-shadow: 0 0 20px rgba(255, 75, 75, 0.08);
-}
-
-.upload-form h2 {
+.top-bar {
+  
   text-align: center;
-  margin-bottom: 20px;
-  color: #fff;
+  margin: 20px 0;
 }
 
-.upload-form label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: bold;
-  color: #ccc;
+.upload-form {
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* 👈 यही gap डाल रहा है */
 }
+
 
 .upload-form input,
 .upload-form textarea {
-  padding: 14px;
-  border: 1px solid #333;
-  border-radius: 8px;
-  background: #121212;
-  color: #eee;
-  font-size: 16px;
-  resize: vertical;
-  transition: border-color 0.3s, background 0.3s;
-  width: 100%;
+  width: 70%;
   box-sizing: border-box;
-  margin-bottom: 20px;
+   margin: 0 auto; /* 👈 यही उन्हें center में लाएगा */
 }
 
-.upload-form input::placeholder,
-.upload-form textarea::placeholder {
-  color: #777;
-  opacity: 0.8;
-}
 
-.upload-form input:focus,
-.upload-form textarea:focus {
-  outline: none;
-  border-color: #3c82f6;
-  background: #1a1a1a;
+.upload-form input,
+.upload-form textarea {
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: #2a2a2a;
+  color: white;
 }
 
 .upload-form button {
-  padding: 14px;
-  background: linear-gradient(to right, #ff416c, #ff4b2b);
+  padding: 7px;
+  background: #e50914;
   border: none;
   color: white;
-  font-size: 16px;
-  font-weight: bold;
   border-radius: 8px;
   cursor: pointer;
-  transition: background 0.3s, transform 0.2s;
-  width: 100%;
+  transition: background 0.3s;
 }
 
 .upload-form button:hover {
-  transform: scale(1.03);
-  opacity: 0.95;
-}
-
-/* ==== Responsive ==== */
-@media (max-width: 600px) {
-  .upload-form {
-    padding: 15px;
-  }
-
-  .upload-form input,
-  .upload-form textarea,
-  .upload-form button {
-    font-size: 15px;
-  }
+  background: #f40612;
 }
 
 .container {
@@ -105,7 +68,7 @@ h1 {
 
 select,
 textarea {
-  width: 100%;
+  width: 90%;
   padding: 12px;
   margin-bottom: 15px;
   background: #2a2a2a;
@@ -165,54 +128,74 @@ textarea {
   white-space: pre-wrap;
   min-height: 80px;
 }
-.popup {
-  display: none;
+/* === Loader and Blur === */
+#loadingOverlay {
   position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0, 0, 0, 0.7);
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
-}
-
-.popup-content {
-  background-color: #1f1f1f;
-  padding: 25px;
-  border-radius: 12px;
-  text-align: center;
-  color: white;
-  width: 90%;
-  max-width: 350px;
-  box-shadow: 0 0 20px #000;
-}
-
-.popup-content input {
-  padding: 10px;
+  top: 0;
+  left: 0;
   width: 100%;
-  border-radius: 8px;
-  border: none;
-  margin: 12px 0;
-  background: #2a2a2a;
-  color: white;
-}
-
-.popup-buttons {
+  height: 100%;
+  background-color: rgba(14, 14, 14, 0.9);
+  z-index: 9999;
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6px);
 }
 
-.popup-buttons button {
-  flex: 1;
-  margin: 5px;
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  background-color: #3c82f6;
-  color: white;
+.loader {
+  border: 6px solid #ccc;
+  border-top: 6px solid #00bfff;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
 }
 
-.popup-buttons button:last-child {
-  background-color: #d9534f;
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Blur effect on content */
+body.loading .container,
+body.loading .top-bar,
+body.loading #uploadContainer {
+  filter: blur(4px);
+  pointer-events: none;
+  user-select: none;
+}
+.puzzle-btn {
+  display: inline-block;
+  background-color: #00ffc3;
+  color: #000;
+  padding: 6px 12px;          /* छोटा padding */
+  margin: 10px 5px;           /* कम margin */
+  border-radius: 2px;         /* थोड़ा गोल कोना */
+  font-weight: 500;
+  font-size: 8px;            /* छोटा font */
+  text-decoration: none;
+  transition: 0.3s ease;
+}
+
+.puzzle-btn:hover {
+  background-color: #00c6a0;
+  color: #fff;
+}
+.upload-btn{
+  display: inline-block;
+  background-color: #00ffc3;
+  color: #000;
+  padding: 6px 12px;          /* छोटा padding */
+  margin: 10px 5px;           /* कम margin */
+  border-radius: 2px;         /* थोड़ा गोल कोना */
+  font-weight: 500;
+  font-size: 8px;            /* छोटा font */
+  text-decoration: none;
+  transition: 0.3s ease;
+}
+.upload-btn:hover{
+
+   background-color: #00c6a0;
+  color: #fff;
 }

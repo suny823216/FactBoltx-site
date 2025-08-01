@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🧩 Drag Into Box Puzzle</title>
+  <link rel="stylesheet" href="puzzle-jigsaw.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+</head>
+<body>
+  <h1>🧠 Drag the Pieces to Complete the Thumbnail</h1>
+
+  <div class="preview" id="previewDiv">
+    <p>🔍 Reference:</p>
+    <img id="previewImage" src="" alt="Thumbnail" />
+  </div>
+
+  <div class="game-container">
+    <div id="dropZone" class="drop-zone"></div>
+    <div id="piecesZone" class="pieces-zone"></div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDUefeJbHKIAs-l3zvFlGaas6VD63vv4kI",
+      authDomain: "inspire4ever-c60ad.firebaseapp.com",
+      projectId: "inspire4ever-c60ad",
+      databaseURL: "https://inspire4ever-c60ad-default-rtdb.firebaseio.com/"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const gridSize = 3;
+    let imageUrl = "";
+    let placedCount = 0;
+
+    function fetchThumbnail() {
+      db.ref("videos").orderByChild("date").limitToLast(1).once("value", (snap) => {
+        let videoId = "";
+        snap.forEach(child => {
+          videoId = child.val().videoId;
+        });
+
+        if (videoId) {
+          const thumb = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+          imageUrl = thumb;
+          document.getElementById("previewImage").src = thumb;
+
+          setTimeout(() => {
+            document.getElementById("previewDiv").style.display = "none";
+            setupPuzzle();
+          }, 2000);
+        }
+      });
+    }
+
+    function setupPuzzle() {
+      const dropZone = document.getElementById("dropZone");
+      const piecesZone = document.getElementById("piecesZone");
+      dropZone.innerHTML = "";
+      piecesZone.innerHTML = "";
+      placedCount = 0;
+
+      const indices = [...Array(9).keys()];
+
+      indices.forEach(i => {
+        const cell = document.createElement("div");
+        cell.classList.add("drop-cell");
+        cell.dataset.index = i;
+        cell.addEventListener("dragover", e => e.preventDefault());
+        cell.addEventListener("drop", dropPiece);
+        dropZone.appendChild(cell);
+      });
+
+      indices.sort(() => Math.random() - 0.5).forEach((i, idx) => {
+        const piece = document.createElement("div");
+        piece.classList.add("piece");
+        piece.setAttribute("draggable", "true");
+        piece.dataset.index = i;
+
+        const x = (i % gridSize) * 100 / (gridSize - 1);
+        const y = Math.floor(i / gridSize) * 100 / (gridSize - 1);
+        piece.style.backgroundImage = `url(${imageUrl})`;
+        piece.style.backgroundSize = `${gridSize * 100}px ${gridSize * 100}px`;
+        piece.style.backgroundPosition = `${x}% ${y}%`;
+
+        piece.style.opacity = 0;
+        piece.style.transform = "scale(1.5) rotate(10deg)";
+        setTimeout(() => {
+          piece.style.transition = "all 0.5s ease";
+          piece.style.opacity = 1;
+          piece.style.transform = "scale(1) rotate(0deg)";
+        }, idx * 100);
+
+        piece.addEventListener("dragstart", dragStart);
+        piecesZone.appendChild(piece);
+      });
+    }
+
+    function dragStart(e) {
+      const piece = e.target;
+      if (piece.getAttribute("draggable") === "false") {
+        e.preventDefault();
+        return;
+      }
+      e.dataTransfer.setData("index", piece.dataset.index);
+      e.dataTransfer.setData("html", piece.outerHTML);
+    }
+
+  function dropPiece(e) {
+  const dropIndex = e.currentTarget.dataset.index;
+  const draggedIndex = e.dataTransfer.getData("index");
+
+  if (dropIndex === draggedIndex && !e.currentTarget.hasChildNodes()) {
+    // Remove from pieces-zone
+    const allPieces = document.querySelectorAll(".piece");
+    allPieces.forEach(p => {
+      if (p.dataset.index === draggedIndex) {
+        p.remove();
+      }
+    });
+
+    // Add to drop zone
+    const piece = document.createElement("div");
+    piece.classList.add("piece");
+    piece.style.backgroundImage = `url(${imageUrl})`;
+    piece.style.backgroundSize = `${gridSize * 100}px ${gridSize * 100}px`;
+    const x = (draggedIndex % gridSize) * 100 / (gridSize - 1);
+    const y = Math.floor(draggedIndex / gridSize) * 100 / (gridSize - 1);
+    piece.style.backgroundPosition = `${x}% ${y}%`;
+    piece.setAttribute("draggable", "false");
+    piece.dataset.index = draggedIndex;
+    e.currentTarget.appendChild(piece);
+
+    // ✅ Increment only once
+    placedCount++;
+
+    if (placedCount === 9) {
+      Swal.fire({
+        icon: "success",
+        title: "🎉 Puzzle Completed!",
+        text: "You placed all pieces correctly!",
+        background: "#1e1e1e",
+        color: "#fff",
+        showConfirmButton: false,
+        timer: 2500
+      });
+
+      setTimeout(() => {
+        setupPuzzle(); // Reset the game
+      }, 2600);
+    }
+  }
+}
+
+
+    window.onload = fetchThumbnail;
+  </script>
+</body>
+</html>

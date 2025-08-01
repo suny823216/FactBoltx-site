@@ -29,30 +29,30 @@
 </head>
 <body>
 
-  <div class="top-bar">
+   <div class="top-bar">
     <h2 id="subscriberCount">Subscribers: ...</h2>
- <!-- Admin Password Popup -->
-<div id="passwordPopup" class="popup">
-  <div class="popup-content">
-    <h3>🔒 Admin Login</h3>
-    <input type="password" id="popupPassword" placeholder="Enter Password">
-    <div class="popup-buttons">
-      <button onclick="handleAdminLogin()">Login</button>
-      <button onclick="closePasswordPopup()">Cancel</button>
-    </div>
-  </div>
-</div>
+    <button onclick="verifyAdminCode()" id="adminCodeBtn" class="upload-btn"><i class="fa-solid fa-user-tie"></i> Admin Login</button>
+    <button id="showFormBtn"  style="display:none"class="upload-btn"><i class="fa-solid fa-upload" ></i> Upload Video</button>
+    <a href="puzzle-jigsaw.html" class="btn puzzle-btn">
+  🧩 Play Thumbnail Puzzle
+</a>
 
-    <button id="showFormBtn" style="display:none"><i class="fa-solid fa-upload"></i> Upload Video</button>
   </div>
 
-  <div class="upload-form" id="uploadForm" style="display:none;">
+ <div id="uploadContainer" style="display: none;">
+  <div class="upload-form">
     <input id="title" placeholder="Video Title" />
     <input id="videoId" placeholder="YouTube Video ID" />
     <textarea id="script" placeholder="Video Script..."></textarea>
     <input id="hashtags" placeholder="#hashtags" />
-    <button onclick="uploadVideo()">Upload</button>
+  
+    <div class="button-group">
+      <button onclick="uploadVideo()">Upload</button>
+      <button type="button" onclick="hideUploadForm()" class="btn red">Cancel</button>
+    </div>
   </div>
+</div>
+
 
   <div class="container">
    
@@ -97,7 +97,8 @@
     const scriptArea = document.getElementById("scriptArea");
     const hashtagArea = document.getElementById("hashtagArea");
     const showFormBtn = document.getElementById("showFormBtn");
-    const uploadForm = document.getElementById("uploadForm");
+   const uploadContainer = document.getElementById("uploadContainer");
+
     const adminCodeBtn = document.getElementById("adminCodeBtn");
     const updateBtn = document.getElementById("updateBtn");
     const deleteBtn = document.getElementById("deleteBtn");
@@ -108,27 +109,56 @@
     const videoLikes = document.getElementById("videoLikes");
     const videoDate = document.getElementById("videoDate");
 
-    function verifyAdminCode() {
-  document.getElementById("popupPassword").value = "";
-  document.getElementById("passwordPopup").style.display = "flex";
-}
-
-function closePasswordPopup() {
-  document.getElementById("passwordPopup").style.display = "none";
-}
-
-function handleAdminLogin() {
-  const inputPassword = document.getElementById("popupPassword").value;
-  if (inputPassword === ADMIN_CODE) {
-    isAdmin = true;
-    localStorage.setItem("admin", "true");
-    showAdminControls();
-    closePasswordPopup();
-    Swal.fire("✅ Access Granted", "Welcome Admin!", "success");
-  } else {
-    Swal.fire("❌ Access Denied", "Wrong password!", "error");
+   function verifyAdminCode() {
+  Swal.fire({
+  title: '🔐 Admin Login',
+   width: '300px',    
+  background: '#1e1e1e',            // Dark background
+  color: '#ffffff',                 // White text
+  input: 'password',
+  inputLabel: 'Enter Admin Password',
+  inputPlaceholder: '••••••••',
+  inputAttributes: {
+    autocapitalize: 'off',
+    autocorrect: 'off'
+  },
+  showCancelButton: true,
+  confirmButtonText: 'Login',
+  preConfirm: (code) => {
+    if (!code) {
+      Swal.showValidationMessage('⚠️ Please enter password');
+      return false;
+    }
+    return code;
   }
+}).then(result => {
+  if (result.isConfirmed) {
+    const code = result.value;
+    if (code === ADMIN_CODE) {
+      isAdmin = true;
+      localStorage.setItem("admin", "true");
+      showAdminControls();
+      Swal.fire({
+        title: '✅ Success!',
+        text: 'Admin access granted.',
+        icon: 'success',
+        background: '#1e1e1e',
+        color: '#ffffff'
+      });
+    } else {
+      Swal.fire({
+        title: '❌ Failed',
+        text: 'Invalid admin password.',
+        icon: 'error',
+        background: '#1e1e1e',
+        color: '#ffffff'
+      });
+    }
+  }
+});
+
 }
+
 
 
     function showAdminControls() {
@@ -139,70 +169,179 @@ function handleAdminLogin() {
     }
 
     showFormBtn.addEventListener("click", () => {
-      uploadForm.style.display = "block";
-      showFormBtn.style.display = "none";
+  uploadContainer.style.display = "block";
+  showFormBtn.style.display = "none";
+});
+
+function uploadVideo() {
+  const title = titleInput.value.trim();
+  const videoId = videoIdInput.value.trim();
+  const script = scriptInput.value.trim();
+  const hashtags = hashtagsInput.value.trim();
+
+  if (!title || !videoId || !script || !hashtags) {
+    Swal.fire({
+      icon: "warning",
+      title: "⚠️ Missing Information",
+      text: "Please fill in all the fields before uploading.",
+      background: "#1e1e1e",
+      color: "#ffffff",
+       width: "280px"  // ⬅️ Popup width छोटा किया
     });
+    return;
+  }
 
-    function uploadVideo() {
-      if (!isAdmin) return alert("Admin access required");
-      const title = titleInput.value.trim();
-      const videoId = videoIdInput.value.trim();
-      const script = scriptInput.value.trim();
-      const hashtags = hashtagsInput.value.trim();
-      if (!title || !videoId || !script || !hashtags) {
-        return alert("⚠️ Please fill in all fields.");
-      }
-      const data = { title, videoId, script, hashtags, date: new Date().toISOString() };
-      const key = db.ref("videos").push().key;
-      db.ref("videos/" + key).set(data).then(() => {
-        resetUploadForm();
-        loadVideos(videoId);
-      });
-    }
+  const newVideo = {
+    title,
+    videoId,
+    script,
+    hashtags,
+    date: new Date().toISOString()
+  };
 
-    function updateVideo() {
-      if (!isAdmin) return alert("Admin access required");
-      if (!currentKey) return alert("⚠️ Select a video first.");
-      const updatedData = {
-        title: titleInput.value.trim(),
-        videoId: videoIdInput.value.trim(),
-        script: scriptInput.value.trim(),
-        hashtags: hashtagsInput.value.trim(),
-        date: new Date().toISOString()
-      };
-      db.ref("videos/" + currentKey).update(updatedData).then(() => {
-        alert("✅ Video updated.");
-        loadVideos(updatedData.videoId);
-      });
-    }
+  db.ref("videos").push(newVideo).then(() => {
+    Swal.fire({
+      icon: "success",
+      title: "✅ Uploaded!",
+      text: "Video has been successfully uploaded.",
+      width: "280px" ,
+      background: "#1e1e1e",
+      color: "#ffffff"
+    });
+    loadVideos(); // Refresh list
+    clearForm();  // Clear form fields
+  });
+}
 
-    function deleteSelected() {
-      if (!isAdmin) return alert("Admin access required");
-      if (!currentKey) return alert("⚠️ Select a video first.");
-      if (!confirm("Are you sure you want to delete this video?")) return;
+function updateVideo() {
+  if (!isAdmin) {
+    Swal.fire({
+      icon: "error",
+      title: "Access Denied",
+      text: "Admin access required to update.",
+      background: "#1e1e1e",
+      width: "280px" ,
+      color: "#ffffff"
+    });
+    return;
+  }
+
+  const updatedData = {
+    title: titleInput.value.trim(),
+    videoId: videoIdInput.value.trim(),
+    script: scriptInput.value.trim(),
+    hashtags: hashtagsInput.value.trim(),
+    date: new Date().toISOString()
+  };
+
+  db.ref("videos/" + currentKey).update(updatedData).then(() => {
+    Swal.fire({
+      icon: "success",
+      title: "✅ Updated",
+      text: "Video has been successfully updated!",
+      background: "#1e1e1e",
+      color: "#ffffff",
+      width: "280px" 
+    });
+    loadVideos(updatedData.videoId);
+  });
+}
+
+
+   function deleteSelected() {
+  if (!currentKey) {
+    Swal.fire({
+      icon: "warning",
+      title: "⚠️ No Video Selected",
+      text: "Please select a video to delete.",
+      background: "#1e1e1e",
+      color: "#ffffff",
+      width: "280px" 
+    });
+    return;
+  }
+
+  Swal.fire({
+    title: "⚠️ Are you sure?",
+    text: "This action cannot be undone.",
+    icon: "warning",
+    width: "280px" ,
+    showCancelButton: true,
+    confirmButtonColor: "#e50914",
+    cancelButtonColor: "#555",
+    confirmButtonText: "Yes, delete it!",
+    background: "#1e1e1e",
+    color: "#ffffff"
+  }).then((result) => {
+    if (result.isConfirmed) {
       db.ref("videos/" + currentKey).remove().then(() => {
-        alert("✅ Video deleted.");
+        Swal.fire({
+          title: "✅ Deleted",
+          text: "Video has been removed.",
+          icon: "success",
+          background: "#1e1e1e",
+          width: "280px" ,
+          color: "#ffffff"
+        });
         resetDisplay();
         loadVideos();
+      }).catch((error) => {
+        Swal.fire({
+          icon: "error",
+          title: "❌ Deletion Failed",
+          text: error.message,
+          background: "#1e1e1e",
+          width: "280px" ,
+          color: "#ffffff"
+        });
       });
     }
+  });
+}
 
-    function copyScript() {
-      const text = `${scriptArea.value}\n\n${hashtagArea.value}`;
-      navigator.clipboard.writeText(text).then(() => {
-        alert("📋 Copied to clipboard!");
-      });
-    }
+
+   function copyScript() {
+  const text = scriptArea.value; // ✅ सिर्फ script लिया गया है
+  
+  navigator.clipboard.writeText(text).then(() => {
+    Swal.fire({
+      icon: "success",
+      title: "📋 Script Copied!",
+      text: "Only the script has been copied to clipboard.",
+      background: "#1e1e1e",
+      color: "#ffffff",
+      timer: 1500,
+      width: "280px" ,
+      showConfirmButton: false
+    });
+  }).catch((err) => {
+    Swal.fire({
+      icon: "error",
+      title: "❌ Copy Failed",
+      text: "Could not copy the script.",
+      background: "#1e1e1e",
+      width: "280px" ,
+      color: "#ffffff"
+    });
+  });
+}
+
+
 
     function resetUploadForm() {
       titleInput.value = "";
       videoIdInput.value = "";
       scriptInput.value = "";
       hashtagsInput.value = "";
-      uploadForm.style.display = "none";
-      showFormBtn.style.display = "inline-block";
+      uploadContainer.style.display = "none";
+  showFormBtn.style.display = "inline-block";
     }
-
+function hideUploadForm() {
+  uploadContainer.style.display = "none";
+  showFormBtn.style.display = "inline-block";
+  // Optional: fields भी साफ कर दो
+  resetUploadForm();
+}
     function resetDisplay() {
       thumbnail.src = "";
       scriptArea.value = "";
@@ -211,62 +350,70 @@ function handleAdminLogin() {
       videoDropdown.selectedIndex = 0;
     }
 
-    async function loadYouTubeData(videoId) {
-      try {
-        const videoRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&id=${videoId}&key=${API_KEY}`);
-        const videoData = await videoRes.json();
-        const video = videoData.items[0];
-        if (video) {
-         videoViews.innerHTML = `<i class="fa-solid fa-eye"></i> : ${video.statistics.viewCount}`;
-videoLikes.innerHTML = `<i class="fa-solid fa-thumbs-up"></i> : ${video.statistics.likeCount}`;
-videoDate.innerHTML = `<i class="fa-solid fa-calendar-days"></i> : ${video.snippet.publishedAt.split("T")[0]}`;
+  async function loadYouTubeData(videoId) {
+  showLoader(); // 👈 Start loader
+  try {
+    const videoRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&id=${videoId}&key=${API_KEY}`);
+    const videoData = await videoRes.json();
+    const video = videoData.items[0];
 
-          const channelId = video.snippet.channelId;
-          const channelRes = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${channelId}&key=${API_KEY}`);
-          const channelData = await channelRes.json();
-          const channel = channelData.items[0];
-          if (channel) {
-            subscriberCount.textContent = `Subscribers: ${channel.statistics.subscriberCount}`;
-          }
-        }
-      } catch (err) {
-       console.error("YouTube API Error", err);
-videoViews.innerHTML = '<i class="fa-solid fa-eye"></i> : --';
-videoLikes.innerHTML = '<i class="fa-solid fa-thumbs-up"></i> : --';
-videoDate.innerHTML = '<i class="fa-solid fa-calendar-days"></i> : --';
-subscriberCount.innerHTML = '<i class="fa-solid fa-user-group"></i> Subscribers: --';
+    if (video) {
+      videoViews.innerHTML = `<i class="fa-solid fa-eye"></i> : ${video.statistics.viewCount}`;
+      videoLikes.innerHTML = `<i class="fa-solid fa-thumbs-up"></i> : ${video.statistics.likeCount}`;
+      videoDate.innerHTML = `<i class="fa-solid fa-calendar-days"></i> : ${video.snippet.publishedAt.split("T")[0]}`;
 
+      const channelId = video.snippet.channelId;
+      const channelRes = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${channelId}&key=${API_KEY}`);
+      const channelData = await channelRes.json();
+      const channel = channelData.items[0];
+      if (channel) {
+        subscriberCount.textContent = `Subscribers: ${channel.statistics.subscriberCount}`;
       }
     }
+  } catch (err) {
+    console.error("YouTube API Error", err);
+    videoViews.innerHTML = '<i class="fa-solid fa-eye"></i> : --';
+    videoLikes.innerHTML = '<i class="fa-solid fa-thumbs-up"></i> : --';
+    videoDate.innerHTML = '<i class="fa-solid fa-calendar-days"></i> : --';
+    subscriberCount.innerHTML = '<i class="fa-solid fa-user-group"></i> Subscribers: --';
+  }
+  hideLoader(); // 👈 End loader
+}
 
-    function loadVideos(selectedId = null) {
-      videoDropdown.innerHTML = "";
-      db.ref("videos").once("value", snap => {
-        allVideos = [];
-        snap.forEach(child => {
-          const video = child.val();
-          video.key = child.key;
-          allVideos.push(video);
-        });
-        allVideos.sort((a, b) => new Date(b.date) - new Date(a.date));
-        allVideos.forEach(video => {
-          const opt = document.createElement("option");
-          opt.value = video.key;
-          opt.textContent = video.title;
-          videoDropdown.appendChild(opt);
-        });
-        if (selectedId) {
-          const match = allVideos.find(v => v.videoId === selectedId);
-          if (match) {
-            videoDropdown.value = match.key;
-            populateDetails(match);
-          }
-        } else if (allVideos.length > 0) {
-          videoDropdown.value = allVideos[0].key;
-          populateDetails(allVideos[0]);
-        }
-      });
+
+   function loadVideos(selectedId = null) {
+  showLoader(); // 👈 Loader Start
+  videoDropdown.innerHTML = "";
+
+  db.ref("videos").once("value", snap => {
+    allVideos = [];
+    snap.forEach(child => {
+      const video = child.val();
+      video.key = child.key;
+      allVideos.push(video);
+    });
+    allVideos.sort((a, b) => new Date(b.date) - new Date(a.date));
+    allVideos.forEach(video => {
+      const opt = document.createElement("option");
+      opt.value = video.key;
+      opt.textContent = video.title;
+      videoDropdown.appendChild(opt);
+    });
+
+    if (selectedId) {
+      const match = allVideos.find(v => v.videoId === selectedId);
+      if (match) {
+        videoDropdown.value = match.key;
+        populateDetails(match);
+      }
+    } else if (allVideos.length > 0) {
+      videoDropdown.value = allVideos[0].key;
+      populateDetails(allVideos[0]);
     }
+
+    hideLoader(); // 👈 Loader End
+  });
+}
 
     function onVideoSelect() {
       const key = videoDropdown.value;
@@ -276,18 +423,29 @@ subscriberCount.innerHTML = '<i class="fa-solid fa-user-group"></i> Subscribers:
       populateDetails(video);
     }
 
-    function populateDetails(video) {
-      const vid = video.videoId;
-      thumbnail.src = `https://img.youtube.com/vi/${vid}/hqdefault.jpg`;
-      videoLink.href = `https://www.youtube.com/watch?v=${vid}`;
-      scriptArea.value = video.script;
-      hashtagArea.value = video.hashtags;
-      titleInput.value = video.title;
-      videoIdInput.value = video.videoId;
-      scriptInput.value = video.script;
-      hashtagsInput.value = video.hashtags;
-      loadYouTubeData(vid);
-    }
+   function populateDetails(video) {
+  const vid = video.videoId;
+  currentKey = video.key; // 👈 यह जोड़ो: thumbnail वाली वीडियो की key set करो
+
+  thumbnail.src = `https://img.youtube.com/vi/${vid}/hqdefault.jpg`;
+  videoLink.href = `https://www.youtube.com/watch?v=${vid}`;
+  scriptArea.value = video.script;
+  hashtagArea.value = video.hashtags;
+  titleInput.value = video.title;
+  videoIdInput.value = video.videoId;
+  scriptInput.value = video.script;
+  hashtagsInput.value = video.hashtags;
+  loadYouTubeData(vid);
+}
+function showLoader() {
+  document.getElementById("loadingOverlay").style.display = "flex";
+  document.body.classList.add("loading");
+}
+
+function hideLoader() {
+  document.getElementById("loadingOverlay").style.display = "none";
+  document.body.classList.remove("loading");
+}
 
     window.onload = () => {
       loadVideos();
@@ -298,4 +456,8 @@ subscriberCount.innerHTML = '<i class="fa-solid fa-user-group"></i> Subscribers:
     };
   </script>
 </body>
+<div id="loadingOverlay">
+  <div class="loader"></div>
+</div>
+
 </html>
