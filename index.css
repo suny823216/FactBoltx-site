@@ -9,6 +9,7 @@ body {
   transform: translateY(20px);
   animation: fadeInSlide 0.6s ease forwards;
   overflow-x: hidden; /* Only block horizontal scroll */
+  
 }
 
 /* ==== Animations ==== */
@@ -63,19 +64,20 @@ body {
 }
 
 #subscribe-btn {
-  background: #cc0000;
+  background-color: red;
   color: white;
-  padding: 12px 24px;
-  font-size: 18px;
+  padding: 10px 20px;
+  font-weight: bold;
   border: none;
-  border-radius: 8px;
+  border-radius: 25px;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: transform 0.2s, background-color 0.3s;
+}
+#subscribe-btn:hover {
+  background-color: #cc0000;
+  transform: scale(1.05);
 }
 
-#subscribe-btn:hover {
-  background: #e60000;
-}
 
 .arrow {
   font-size: 36px;

@@ -1,3 +1,4 @@
+/* ==== Global ==== */
 body {
   margin: 0;
   font-family: 'Segoe UI', sans-serif;
@@ -5,44 +6,86 @@ body {
   color: #fff;
 }
 
-.top-bar {
-  text-align: center;
-  margin: 20px 0;
+/* ==== Upload Form ==== */
+.upload-form {
+  max-width: 700px;
+  margin: 40px auto;
+  background: #1f1f1f;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(255, 75, 75, 0.08);
 }
 
-.upload-form {
-  max-width: 600px;
-  margin: 0 auto 20px;
-  background: #1f1f1f;
-  padding: 20px;
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  box-shadow: 0 0 10px #000;
+.upload-form h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #fff;
+}
+
+.upload-form label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #ccc;
 }
 
 .upload-form input,
 .upload-form textarea {
-  padding: 12px;
-  border: none;
+  padding: 14px;
+  border: 1px solid #333;
   border-radius: 8px;
-  background: #2a2a2a;
-  color: white;
+  background: #121212;
+  color: #eee;
+  font-size: 16px;
+  resize: vertical;
+  transition: border-color 0.3s, background 0.3s;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 20px;
+}
+
+.upload-form input::placeholder,
+.upload-form textarea::placeholder {
+  color: #777;
+  opacity: 0.8;
+}
+
+.upload-form input:focus,
+.upload-form textarea:focus {
+  outline: none;
+  border-color: #3c82f6;
+  background: #1a1a1a;
 }
 
 .upload-form button {
-  padding: 12px;
-  background: #e50914;
+  padding: 14px;
+  background: linear-gradient(to right, #ff416c, #ff4b2b);
   border: none;
   color: white;
+  font-size: 16px;
+  font-weight: bold;
   border-radius: 8px;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: background 0.3s, transform 0.2s;
+  width: 100%;
 }
 
 .upload-form button:hover {
-  background: #f40612;
+  transform: scale(1.03);
+  opacity: 0.95;
+}
+
+/* ==== Responsive ==== */
+@media (max-width: 600px) {
+  .upload-form {
+    padding: 15px;
+  }
+
+  .upload-form input,
+  .upload-form textarea,
+  .upload-form button {
+    font-size: 15px;
+  }
 }
 
 .container {
@@ -121,4 +164,55 @@ textarea {
   margin-top: 10px;
   white-space: pre-wrap;
   min-height: 80px;
+}
+.popup {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.popup-content {
+  background-color: #1f1f1f;
+  padding: 25px;
+  border-radius: 12px;
+  text-align: center;
+  color: white;
+  width: 90%;
+  max-width: 350px;
+  box-shadow: 0 0 20px #000;
+}
+
+.popup-content input {
+  padding: 10px;
+  width: 100%;
+  border-radius: 8px;
+  border: none;
+  margin: 12px 0;
+  background: #2a2a2a;
+  color: white;
+}
+
+.popup-buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+.popup-buttons button {
+  flex: 1;
+  margin: 5px;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background-color: #3c82f6;
+  color: white;
+}
+
+.popup-buttons button:last-child {
+  background-color: #d9534f;
 }
