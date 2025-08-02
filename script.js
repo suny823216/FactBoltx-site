@@ -22,3 +22,16 @@ subscribeBtn.addEventListener("click", () => {
 
   });
 });
+const tagline = document.getElementById("tagline");
+const text = "Daily Mind-Blowing Facts 🔥";
+let i = 0;
+
+function typeWriter() {
+  if (i < text.length) {
+    tagline.textContent += text.charAt(i);
+    i++;
+    setTimeout(typeWriter, 60);
+  }
+}
+
+typeWriter();

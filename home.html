@@ -33,8 +33,8 @@
     <h2 id="subscriberCount">Subscribers: ...</h2>
     <button onclick="verifyAdminCode()" id="adminCodeBtn" class="upload-btn"><i class="fa-solid fa-user-tie"></i> Admin Login</button>
     <button id="showFormBtn"  style="display:none"class="upload-btn"><i class="fa-solid fa-upload" ></i> Upload Video</button>
-    <a href="puzzle-jigsaw.html" class="btn puzzle-btn">
-  🧩 Play Thumbnail Puzzle
+    <a href="space.html" class="btn puzzle-btn">
+  <i class="fa-solid fa-gamepad"></i> Let's Play Game
 </a>
 
   </div>
@@ -84,7 +84,7 @@
 
   <script>
     const API_KEY = "AIzaSyAa5mJThKeXqIbcB_pBIE4jOlTw04Ej2fU";
-    const ADMIN_CODE = "deepak95";
+    const ADMIN_CODE = "deepak33";
     let isAdmin = false;
     let currentKey = null;
     let allVideos = [];
@@ -140,6 +140,7 @@
       showAdminControls();
       Swal.fire({
         title: '✅ Success!',
+         width: '280px',   
         text: 'Admin access granted.',
         icon: 'success',
         background: '#1e1e1e',
@@ -148,6 +149,7 @@
     } else {
       Swal.fire({
         title: '❌ Failed',
+        width: '280px',   
         text: 'Invalid admin password.',
         icon: 'error',
         background: '#1e1e1e',

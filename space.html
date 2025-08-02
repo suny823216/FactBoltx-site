@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+
+
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Logo Catcher Game</title>
+
+  <style>
+    /* ✅ Fullscreen + Safe Area Compatible */
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      touch-action: none;
+      overscroll-behavior: none;
+      font-family: sans-serif;
+      background: #000;
+    }
+
+    #gameArea {
+      width: 95%;
+      max-width: 500px;
+      height: 95vh; /* Full mobile screen */
+      margin: 0 auto;
+      border: 3px solid white;
+      background: #111;
+      position: relative;
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    #playerBox {
+      width: 100px;
+      height: 100px;
+      background-image: url("empty-carton-box-500x500.webp");
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      position: absolute;
+      bottom: 10px;
+      left: 200px;
+    }
+
+
+    #playerBox {
+      width: 100px;
+      height: 100px;
+      background-image: url("empty-carton-box-500x500.webp");
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      position: absolute;
+      bottom: 10px;
+      left: 200px;
+    }
+
+    .logo {
+      width: 40px;
+      height: 40px;
+      position: absolute;
+      border-radius: 50%;
+      object-fit: cover;
+      box-shadow: 0 0 5px white;
+    }
+
+    .rare {
+      border: 3px solid gold;
+      box-shadow: 0 0 15px gold;
+    }
+
+    .catchEffect {
+      width: 30px;
+      height: 30px;
+      background: radial-gradient(white, transparent);
+      border-radius: 50%;
+      position: absolute;
+      animation: pop 0.4s ease-out forwards;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    @keyframes pop {
+      0% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(3); opacity: 0; }
+    }
+.scorePopup {
+  position: absolute;
+  color: lime;
+  font-size: 20px;
+  font-weight: bold;
+  animation: floatUp 1s ease-out forwards;
+  pointer-events: none;
+  z-index: 999;
+}
+
+@keyframes floatUp {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-40px); opacity: 0; }
+}
+
+    #score, #lives, #missed {
+      color: white;
+      font-size: 18px;
+      position: absolute;
+      top: 10px;
+    }
+
+    #score { left: 10px; }
+    #lives { left: 150px; }
+    #missed { left: 250px; }
+
+    #gameOverScreen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  color: white;
+  font-size: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  display: none;
+
+  z-index: 9999; /* ✅ Add this line */
+}
+
+    #restartBtn {
+      padding: 10px 20px;
+      background: red;
+      border: none;
+      color: white;
+      font-size: 18px;
+      margin-top: 20px;
+      cursor: pointer;
+      border-radius: 10px;
+    }
+    
+  </style>
+</head>
+<body>
+  <div id="gameArea">
+    <div id="score">Score: 0</div>
+    <div id="lives">Lives: 3</div>
+    <div id="missed">Missed: 0</div>
+    <div id="playerBox"></div>
+    <div id="gameOverScreen">
+      <div id="adminHint" style="
+  position: absolute;
+  top: 45px;
+  left: 10px;
+  color: yellow;
+  font-size: 16px;
+  display: none;
+  z-index: 1000;
+">
+  🔒 Admin Password: <b>deepak33</b>
+</div>
+
+      <div>Game Over</div>
+      <div id="finalScore"></div>
+      <button id="restartBtn">Restart</button>
+    </div>
+  </div>
+
+  <audio id="catchSound" src="https://www.fesliyanstudios.com/play-mp3/387" preload="auto"></audio>
+ <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+  <script>
+    const gameArea = document.getElementById("gameArea");
+    const player = document.getElementById("playerBox");
+    const scoreDisplay = document.getElementById("score");
+    const livesDisplay = document.getElementById("lives");
+    const missedDisplay = document.getElementById("missed");
+    const gameOverScreen = document.getElementById("gameOverScreen");
+    const finalScore = document.getElementById("finalScore");
+    const restartBtn = document.getElementById("restartBtn");
+
+    const catchSound = document.getElementById("catchSound");
+    const bgMusic = document.getElementById("bgMusic");
+
+    let playerX = 200;
+    let score = 0;
+    let lives = 3;
+    let missed = 0;
+    let logos = [];
+    let gameRunning = true;
+    let fallSpeed = 2.5;
+    let spawnInterval;
+    let difficultyTimer;
+
+    const logoUrls = [
+      "https://yt3.googleusercontent.com/y_0z6COuPRpXPa43q3hKIl_DzjrAqwebmdxDl5S2_SZaY8zxYWkOTcdohdZSl23fFarTNJxeltQ=s160-c-k-c0x00ffffff-no-rj",
+      "https://yt3.ggpht.com/nxYrc_1_2f77DoBadyxMTmv7ZpRZapHR5jbuYe7PlPd5cIRJxtNNEYyOC0ZsxaDyJJzXrnJiuDE=s176-c-k-c0x00ffffff-no-rj-mo",
+      "https://yt3.ggpht.com/cxE8FStJktJ2oiuv1f-7OHMfJI7ZlMby4NgPDkfJTyV3sOsvdo5pmsAb8TAcJVNor6gNT2h_0w=s176-c-k-c0x00ffffff-no-rj-mo",
+      "https://yt3.googleusercontent.com/ytc/AIdro_n6rCnXvBYGxRd-gdNXLc2pxyX7ClUTYGhEiP3g6vpWKnI=s176-c-k-c0x00ffffff-no-rj-mo",
+    ];
+
+    const rareLogo = {
+      url:"https://yt3.googleusercontent.com/G9TX0i4yT5LDN2VZ7Z96DbsP5iRI5wR_u71yAwBY71rkDP84lWaJwZ342beeLfd3YbZEaHx3Ww=s160-c-k-c0x00ffffff-no-rj",
+      score: 5
+    };
+
+   document.addEventListener("keydown", (e) => {
+  if (!gameRunning) return;
+  if (e.key === "ArrowLeft") playerX -= 20;
+  if (e.key === "ArrowRight") playerX += 20;
+
+  const maxX = gameArea.offsetWidth - player.offsetWidth;
+  if (playerX < 0) playerX = 0;
+  if (playerX > maxX) playerX = maxX;
+
+  player.style.left = playerX + "px";
+});
+
+
+    // 👇 Touch controls
+    let touchStartX = null;
+    gameArea.addEventListener("touchstart", (e) => {
+      touchStartX = e.touches[0].clientX;
+    });
+   gameArea.addEventListener("touchmove", (e) => {
+  if (!gameRunning || touchStartX === null) return;
+  const touchX = e.touches[0].clientX;
+  const deltaX = touchX - touchStartX;
+  touchStartX = touchX;
+  playerX += deltaX;
+
+  const maxX = gameArea.offsetWidth - player.offsetWidth;
+  if (playerX < 0) playerX = 0;
+  if (playerX > maxX) playerX = maxX;
+
+  player.style.left = playerX + "px";
+});
+
+    gameArea.addEventListener("touchend", () => {
+      touchStartX = null;
+    });
+
+    function spawnLogo() {
+      if (!gameRunning) return;
+      const logo = document.createElement("img");
+
+      let isRare = Math.random() < 0.1; // 10% chance
+      logo.src = isRare ? rareLogo.url : logoUrls[Math.floor(Math.random() * logoUrls.length)];
+      logo.className = "logo";
+      if (isRare) logo.classList.add("rare");
+      logo.dataset.points = isRare ? rareLogo.score : 1;
+    const maxLogoLeft = gameArea.offsetWidth - 40; // 40 = logo width
+logo.style.left = Math.floor(Math.random() * maxLogoLeft) + "px";
+
+      logo.style.top = "0px";
+      gameArea.appendChild(logo);
+      logos.push(logo);
+    }
+
+    function isColliding(a, b) {
+      return !(
+        a.offsetTop > b.offsetTop + b.offsetHeight ||
+        a.offsetTop + a.offsetHeight < b.offsetTop ||
+        a.offsetLeft > b.offsetLeft + b.offsetWidth ||
+        a.offsetLeft + a.offsetWidth < b.offsetLeft
+      );
+    }
+
+    function showCatchEffect(x, y) {
+      const effect = document.createElement("div");
+      effect.className = "catchEffect";
+      effect.style.left = x + "px";
+      effect.style.top = y + "px";
+      gameArea.appendChild(effect);
+      setTimeout(() => effect.remove(), 400);
+    }
+
+    function updateScore(points) {
+      score += points;
+      scoreDisplay.textContent = "Score: " + score;
+      
+    }
+
+    function loseLife() {
+      lives--;
+      missed++;
+      livesDisplay.textContent = "Lives: " + lives;
+      missedDisplay.textContent = "Missed: " + missed;
+      if (lives <= 0) endGame();
+    }
+
+  function endGame() {
+  gameRunning = false;
+  clearInterval(spawnInterval);
+  clearInterval(difficultyTimer);
+
+  if (score >= 250 && !localStorage.getItem("adminLoggedIn")) {
+    localStorage.setItem("adminUnlock", "true"); // Mark unlock
+
+    // Show popup first
+    Swal.fire({
+      title: "🎉 Admin Unlocked!",
+       width: '280px',   
+      text: "Your Admin Password is: deepak33",
+      icon: "success",
+      background: "#1e1e1e",
+      color: "#fff",
+      confirmButtonText: "OK",
+      allowOutsideClick: false,
+      allowEscapeKey: false
+    }).then(() => {
+      // ✅ After OK: show GameOver screen + show admin password text
+      gameOverScreen.style.display = "flex";
+      finalScore.textContent = "Final Score: " + score;
+      document.getElementById("adminHint").style.display = "block";
+
+      // Keep showing hint until login
+      checkAdminLoop();
+    });
+  } else {
+    // Normal game over
+    gameOverScreen.style.display = "flex";
+    finalScore.textContent = "Final Score: " + score;
+  }
+}
+
+
+function showAdminPasswordPopup() {
+ Swal.fire({
+  title: "🎉 Admin Unlocked!",
+   width: '280px',   
+  text: "Your Admin Password is: deepak33",
+  icon: "success",
+  background: "#1e1e1e",
+  color: "#fff",
+  confirmButtonText: "OK",
+  allowOutsideClick: false,
+  allowEscapeKey: false
+}).then(() => {
+  // ✅ Set login status after first OK
+  localStorage.setItem("adminLoggedIn", "true");
+
+  // Then show game over screen
+  gameOverScreen.style.display = "flex";
+  finalScore.textContent = "Final Score: " + score;
+});
+}
+
+  
+function showScorePopup(x, y, points) {
+  const popup = document.createElement("div");
+  popup.className = "scorePopup";
+  popup.textContent = "+" + points;
+  popup.style.left = x + "px";
+  popup.style.top = y + "px";
+  gameArea.appendChild(popup);
+  setTimeout(() => popup.remove(), 1000);
+}
+
+    function restartGame() {
+      clearInterval(spawnInterval);
+      clearInterval(difficultyTimer);
+      score = 0;
+      lives = 3;
+      missed = 0;
+      fallSpeed = 2.5;
+      gameRunning = true;
+      scoreDisplay.textContent = "Score: 0";
+      livesDisplay.textContent = "Lives: 3";
+      missedDisplay.textContent = "Missed: 0";
+    playerX = (gameArea.offsetWidth - player.offsetWidth) / 2;
+player.style.left = playerX + "px";
+
+      gameOverScreen.style.display = "none";
+      logos.forEach(l => l.remove());
+      logos = [];
+      spawnInterval = setInterval(spawnLogo, 1000);
+      difficultyTimer = setInterval(() => {
+        if (fallSpeed < 10) fallSpeed += 0.2;
+      }, 4000); // Every 4 sec, speed up
+      gameLoop();
+    }
+
+    restartBtn.onclick = restartGame;
+
+    function gameLoop() {
+      if (!gameRunning) return;
+      logos.forEach((logo, index) => {
+        logo.style.top = logo.offsetTop + fallSpeed + "px";
+
+        if (isColliding(logo, player)) {
+          const points = +logo.dataset.points || 1;
+          catchSound.play();
+          showCatchEffect(logo.offsetLeft, logo.offsetTop);
+            showScorePopup(logo.offsetLeft, logo.offsetTop, points); // 👉 यह नई लाइन
+          logo.remove();
+          logos.splice(index, 1);
+          updateScore(points);
+        }
+
+        if (logo.offsetTop > 600) {
+          logo.remove();
+          logos.splice(index, 1);
+          loseLife();
+        }
+      });
+      // 🔐 Admin Password पर क्लिक करने पर लॉगिन पूछेगा
+document.getElementById("adminHint").onclick = function () {
+  const input = prompt("🔒 Admin Password डालें:");
+  if (input === "deepak33") {
+    localStorage.setItem("adminLoggedIn", "true");
+    alert("✅ Admin Login सफल!");
+    document.getElementById("adminHint").style.display = "none";
+  } else {
+    alert("❌ गलत Password");
+  }
+};
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    // Start the game
+    spawnInterval = setInterval(spawnLogo, 1000);
+    difficultyTimer = setInterval(() => {
+      if (fallSpeed < 10) fallSpeed += 0.2;
+    }, 4000);
+    gameLoop();
+  </script>
+</body>
+</html>
