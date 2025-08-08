@@ -182,6 +182,16 @@ body.loading #uploadContainer {
   background-color: #00c6a0;
   color: #fff;
 }
+@keyframes jump {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-1.5px); }
+}
+
+.puzzle-btn, .upload-btn {
+  animation: jump 3s ease-in-out infinite;
+  transition: transform 0.3s ease;
+}
+
 .upload-btn{
   display: inline-block;
   background-color: #00ffc3;
@@ -198,4 +208,196 @@ body.loading #uploadContainer {
 
    background-color: #00c6a0;
   color: #fff;
+}
+.upload-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 30px;
+  width: 100%;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 20px;
+  background-color: #1e1e1e;
+  border-radius: 15px;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+.upload-form input,
+.upload-form textarea {
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  background-color: #2a2a2a;
+  color: #fff;
+}
+
+.upload-form textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.upload-form button {
+  padding: 12px;
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.upload-form button:hover {
+  background-color: #cc0000;
+  transform: scale(1.05);
+}
+#watchNowBtn {
+  display: inline-block;
+  font-size: 14px;         /* छोटा font */
+  padding: 6px 12px;       /* कम padding */
+  background-color: #1e88e5; /* नीला background */
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+  margin-top: 10px;
+}
+
+#watchNowBtn:hover {
+  background-color: #1565c0;  /* hover effect */
+}
+#watchNowBtn:active {
+  transform: scale(0.95);
+}
+.share-buttons {
+  margin-top: 15px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.share-buttons a {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  text-decoration: none;
+  color: white;
+  font-weight: 500;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: background 0.3s ease, transform 0.2s;
+}
+
+.share-buttons a:hover {
+  transform: scale(1.05);
+}
+
+#whatsappShare {
+  background-color: #25D366;
+}
+
+#facebookShare {
+  background-color: #1877F2;
+}
+
+#twitterShare {
+  background-color: #1DA1F2;
+}
+
+/* 🆕 Extra spacing between share-buttons and other buttons */
+.share-buttons + .action-buttons {
+  margin-top: 20px;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.action-buttons button {
+  padding: 8px 14px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s;
+}
+
+.action-buttons button:hover {
+  transform: scale(1.05);
+}
+
+.action-buttons .copy {
+  background-color: #3f51b5;
+  color: white;
+}
+
+.action-buttons .update {
+  background-color: #43a047;
+  color: white;
+}
+
+.action-buttons .delete {
+  background-color: #e53935;
+  color: white;
+}
+
+.custom-dropdown {
+  position: relative;
+  width: 90%;
+  margin: 20px auto;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.selected {
+  background-color: #1e1e1e;
+  color: white;
+  padding: 14px;
+  border-radius: 8px;
+  border: 1px solid #444;
+  cursor: pointer;
+}
+
+.options {
+  position: absolute;
+  top: 100%;
+  width: 100%;
+  background-color: #1e1e1e;
+  border: 1px solid #444;
+  border-radius: 8px;
+  display: none;
+  max-height: 220px;
+  overflow-y: auto;
+  z-index: 10;
+}
+
+.options div {
+  padding: 12px;
+  border-bottom: 1px solid #333;
+  color: white;
+  cursor: pointer;
+}
+
+.options div:hover {
+  background-color: #2a2a2a;
+}
+.selected::after {
+  content: "▼"; 
+  float: right;
+  margin-right: 10px;
+  color: #aaa;
+  font-size: 14px;
+  transition: transform 0.3s ease;
+}
+.selected.open::after {
+  transform: rotate(180deg); 
 }

@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>📊 View Analytics</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 30px 20px;
+      font-family: 'Segoe UI', sans-serif;
+      background: radial-gradient(#101820, #000);
+      color: #00f7ff;
+    }
+
+    h1 {
+      text-align: center;
+      color: #00ff88;
+      margin-bottom: 30px;
+    }
+
+    .custom-dropdown {
+      position: relative;
+      max-width: 360px;
+      margin: auto;
+      margin-bottom: 25px;
+    }
+/* Wrap all info boxes inside one box visually */
+#chartContainer .info-box,
+#topCommentsList,
+#suggestionsList,
+#leaderboardList {
+  background: #1b1b1b;
+  padding: 12px 15px;
+  border-radius: 10px;
+  margin: 10px 0;
+  box-shadow: inset 0 0 5px #00ffaa55;
+  text-align: left;
+}
+
+#topCommentsList p,
+#suggestionsList p {
+  margin: 5px 0;
+  color: #ccc;
+  font-size: 15px;
+}
+
+#leaderboardList ol {
+  padding-left: 20px;
+  margin: 5px 0;
+  color: #eee;
+}
+
+    .custom-dropdown .selected {
+      background: #1e1e1e;
+      padding: 12px 15px;
+      border: 2px solid #444;
+      border-radius: 10px;
+      color: #00f7ff;
+      cursor: pointer;
+      font-size: 16px;
+      transition: 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .custom-dropdown .selected.open {
+      border-color: #00ffaa;
+    }
+
+    .custom-dropdown .options {
+      position: absolute;
+      top: 110%;
+      left: 0;
+      right: 0;
+      background: #222;
+      border: 1px solid #555;
+      border-radius: 10px;
+      max-height: 200px;
+      overflow-y: auto;
+      display: none;
+      z-index: 10;
+    }
+
+    .custom-dropdown .options div {
+      padding: 10px;
+      color: #eee;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .custom-dropdown .options div:hover {
+      background: #00ffaa22;
+    }
+
+    .dropdown-icon {
+      margin-left: 10px;
+      transition: transform 0.3s ease;
+    }
+
+    .selected.open .dropdown-icon {
+      transform: rotate(180deg);
+    }
+
+    #chartContainer {
+      max-width: 700px;
+      margin: 30px auto;
+      background: #111;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 0 15px #00ffaa44;
+    }
+
+    canvas {
+      background: #1b1b1b;
+      border-radius: 10px;
+    }
+
+    .info-box {
+      text-align: center;
+      font-size: 18px;
+      margin-top: 20px;
+      color: #ffaa00;
+    }
+
+    .info-box i {
+      margin-right: 8px;
+      color: #fff;
+    }
+
+    #topCommentsList,
+    #suggestionsList,
+    #leaderboardList {
+      margin-top: 10px;
+      color: #eee;
+      font-size: 14px;
+    }
+
+    #loadingOverlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: #000d;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+
+    .loader {
+      border: 6px solid #333;
+      border-top: 6px solid #00ffaa;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .mode-toggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #00ffaa;
+      color: #000;
+      padding: 10px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      z-index: 1000;
+    }
+
+    @media(max-width: 600px) {
+      canvas {
+        width: 100% !important;
+        height: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1><i class="fa-solid fa-chart-simple"></i>  ViewAnalytics</h1>
+
+  <div class="custom-dropdown">
+    <div class="selected" onclick="toggleDropdown()">📁 Select Video <i class="fa-solid fa-chevron-down dropdown-icon"></i></div>
+    <div class="options" id="dropdownOptions"></div>
+  </div>
+
+  <div id="chartContainer">
+    <canvas id="viewsChart" height="230"></canvas>
+    <div class="info-box"><i class="fa-solid fa-comment"></i> Comments: <span id="commentCount">--</span></div>
+    <div class="info-box"><i class="fa-solid fa-star"></i> Top Comments:</div>
+    <div id="topCommentsList" class="info-box"></div>
+    <div class="info-box"><i class="fa-solid fa-lightbulb"></i> Suggestions:</div>
+    <div id="suggestionsList" class="info-box"></div>
+    <div class="info-box"><i class="fa-solid fa-ranking-star"></i> Leaderboard (Top Views):</div>
+    <div id="leaderboardList" class="info-box"></div>
+  </div>
+
+ 
+  <div id="loadingOverlay"><div class="loader"></div></div>
+
+  <script>
+    const API_KEY = "AIzaSyAa5mJThKeXqIbcB_pBIE4jOlTw04Ej2fU";
+    const firebaseConfig = {
+      apiKey: "AIzaSyDUefeJbHKIAs-l3zvFlGaas6VD63vv4kI",
+      authDomain: "inspire4ever-c60ad.firebaseapp.com",
+      databaseURL: "https://inspire4ever-c60ad-default-rtdb.firebaseio.com",
+      projectId: "inspire4ever-c60ad",
+      storageBucket: "inspire4ever-c60ad.appspot.com",
+      messagingSenderId: "125014633127",
+      appId: "1:125014633127:web:d29e4c37628ab637f40982"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    let viewsChart = null;
+    const commentCount = document.getElementById("commentCount");
+    const selected = document.querySelector(".selected");
+    const optionsContainer = document.getElementById("dropdownOptions");
+    const topCommentsList = document.getElementById("topCommentsList");
+    const suggestionsList = document.getElementById("suggestionsList");
+    const leaderboardList = document.getElementById("leaderboardList");
+
+    function toggleDropdown() {
+      optionsContainer.style.display = optionsContainer.style.display === "block" ? "none" : "block";
+      selected.classList.toggle("open");
+    }
+
+    function setSelectedTitle(title) {
+      selected.innerHTML = `<i class="fa-solid fa-chart-simple"></i>  ${title} <i class="fa-solid fa-chevron-down dropdown-icon"></i>`;
+    }
+
+    function selectVideo(video) {
+      setSelectedTitle(video.title);
+      toggleDropdown();
+      loadStats(video.videoId);
+    }
+
+    function loadVideos() {
+      showLoader();
+      db.ref("videos").once("value", snapshot => {
+        optionsContainer.innerHTML = "";
+        let first = true;
+        const allVideos = [];
+        snapshot.forEach(child => {
+          const video = child.val();
+          const div = document.createElement("div");
+          div.textContent = video.title;
+          div.onclick = () => selectVideo(video);
+          optionsContainer.appendChild(div);
+          allVideos.push(video);
+
+          if (first) {
+            setSelectedTitle(video.title);
+            loadStats(video.videoId);
+            first = false;
+          }
+        });
+        loadLeaderboard(allVideos);
+        hideLoader();
+      });
+    }
+
+    async function loadStats(videoId) {
+      showLoader();
+      try {
+        const url = `https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${videoId}&key=${API_KEY}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (!data.items.length) return hideLoader();
+
+        const stats = data.items[0].statistics;
+        const views = stats.viewCount || 0;
+        const likes = stats.likeCount || 0;
+        const comments = stats.commentCount || 0;
+
+        updateChart(views, likes);
+        commentCount.textContent = comments;
+
+        await loadTopComments(videoId);
+        loadSuggestions();
+
+      } catch (err) {
+        console.error("YouTube API Error", err);
+      }
+      hideLoader();
+    }
+
+    async function loadTopComments(videoId) {
+      try {
+        const url = `https://www.googleapis.com/youtube/v3/commentThreads?part=snippet&videoId=${videoId}&key=${API_KEY}&maxResults=3&order=relevance`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (!data.items) return;
+
+        topCommentsList.innerHTML = "";
+        data.items.forEach(item => {
+          const comment = item.snippet.topLevelComment.snippet.textDisplay;
+          const p = document.createElement("p");
+          p.textContent = comment;
+          topCommentsList.appendChild(p);
+        });
+      } catch (err) {
+        topCommentsList.innerHTML = "<p style='color: #888;'>Failed to load comments.</p>";
+        console.error("Comment API Error", err);
+      }
+    }
+
+    function loadSuggestions() {
+  suggestionsList.innerHTML = `<p>Try improving audience retention, enhancing thumbnail contrast, and adding video chapters for better engagement.</p>`;
+}
+
+
+    async function loadLeaderboard(videoList) {
+      leaderboardList.innerHTML = "Loading leaderboard...";
+      const ranked = [];
+
+      for (const video of videoList) {
+        const url = `https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${video.videoId}&key=${API_KEY}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.items.length) {
+          const views = parseInt(data.items[0].statistics.viewCount || 0);
+          ranked.push({ title: video.title, views });
+        }
+      }
+
+      ranked.sort((a, b) => b.views - a.views);
+      leaderboardList.innerHTML = "<ol>" + ranked.slice(0, 3).map(v => `<li>${v.title} - ${(v.views/1000).toFixed(1)}k Views</li>`).join('') + "</ol>";
+    }
+
+    function updateChart(views, likes) {
+      const ctx = document.getElementById("viewsChart").getContext("2d");
+      if (viewsChart) viewsChart.destroy();
+
+      const gradient1 = ctx.createLinearGradient(0, 0, 0, 300);
+      gradient1.addColorStop(0, "#00ffaa");
+      gradient1.addColorStop(1, "#006644");
+
+      const gradient2 = ctx.createLinearGradient(0, 0, 0, 300);
+      gradient2.addColorStop(0, "#ff4d4d");
+      gradient2.addColorStop(1, "#991111");
+
+      viewsChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: ["👁 Views", "👍 Likes"],
+          datasets: [{
+            label: "Video Stats",
+            data: [views, likes],
+            backgroundColor: [gradient1, gradient2],
+            borderRadius: 10
+          }]
+        },
+        options: {
+          responsive: true,
+          animation: {
+            duration: 1000,
+            easing: "easeOutBounce"
+          },
+          plugins: {
+            legend: { display: false },
+            title: {
+              display: true,
+              text: "📊 YouTube Stats (Live)",
+              color: "#00ff88"
+            },
+            tooltip: {
+              backgroundColor: "#111",
+              titleColor: "#00ffaa",
+              bodyColor: "#fff",
+              borderColor: "#00ffaa55",
+              borderWidth: 1
+            }
+          },
+          scales: {
+            x: { ticks: { color: "#fff" } },
+            y: { ticks: { color: "#fff" }, beginAtZero: true }
+          }
+        }
+      });
+    }
+
+    function showLoader() {
+      document.getElementById("loadingOverlay").style.display = "flex";
+    }
+
+    function hideLoader() {
+      document.getElementById("loadingOverlay").style.display = "none";
+    }
+
+    function toggleTheme() {
+      const body = document.body;
+      const dark = body.style.background.includes("#101820");
+      if (dark) {
+        body.style.background = "#f0f0f0";
+        body.style.color = "#111";
+      } else {
+        body.style.background = "radial-gradient(#101820, #000)";
+        body.style.color = "#00f7ff";
+      }
+    }
+
+    window.onload = loadVideos;
+  </script>
+</body>
+</html>

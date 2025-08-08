@@ -1,435 +1,348 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  
-
-
   <meta charset="UTF-8" />
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Logo Catcher Game</title>
-
   <style>
-    /* ✅ Fullscreen + Safe Area Compatible */
-    html, body {
-      height: 100%;
+    * { box-sizing: border-box; }
+    body {
       margin: 0;
-      padding: 0;
-      overflow: hidden;
-      touch-action: none;
-      overscroll-behavior: none;
-      font-family: sans-serif;
-      background: #000;
+      font-family: 'Segoe UI', sans-serif;
+      background: #111;
+      color: white;
     }
-
     #gameArea {
+      position: relative;
       width: 95%;
       max-width: 500px;
-      height: 95vh; /* Full mobile screen */
-      margin: 0 auto;
-      border: 3px solid white;
-      background: #111;
-      position: relative;
+      height: 90vh;
+      margin: 20px auto;
+      border: 2px solid #00ffe0;
+      border-radius: 10px;
+      background: #1e1e1e;
       overflow: hidden;
-      touch-action: none;
     }
-
     #playerBox {
-      width: 100px;
-      height: 100px;
-      background-image: url("empty-carton-box-500x500.webp");
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-position: center;
-      position: absolute;
-      bottom: 10px;
-      left: 200px;
-    }
-
-
-    #playerBox {
-      width: 100px;
-      height: 100px;
-      background-image: url("empty-carton-box-500x500.webp");
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-position: center;
-      position: absolute;
-      bottom: 10px;
-      left: 200px;
-    }
+  width: 80px;
+  height: 80px;
+  position: absolute;
+  bottom: 10px;
+  left: 200px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-image: url("https://cdn-icons-png.flaticon.com/512/149/149071.png"); /* ✅ Default */
+}
 
     .logo {
       width: 40px;
       height: 40px;
       position: absolute;
+      top: 0;
       border-radius: 50%;
       object-fit: cover;
-      box-shadow: 0 0 5px white;
+      border: 2px solid #00e0ff;
     }
-
     .rare {
-      border: 3px solid gold;
-      box-shadow: 0 0 15px gold;
+      border-color: gold;
     }
-
-    .catchEffect {
-      width: 30px;
-      height: 30px;
-      background: radial-gradient(white, transparent);
-      border-radius: 50%;
+    #score, #lives, #missed, #coins {
       position: absolute;
-      animation: pop 0.4s ease-out forwards;
-      pointer-events: none;
+      top: 5px;
+      background: #222;
+      border-radius: 6px;
+      padding: 5px 8px;
+      font-size: 14px;
+      border: 1px solid #00ffe0;
+    }
+    #score { left: 10px; }
+    #lives { left: 90px; }
+    #missed { left: 170px; }
+    #coins {
+      right: 10px;
+      color: gold;
+      border-color: gold;
+    }
+    #gameOverScreen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
       z-index: 10;
     }
-
-    @keyframes pop {
-      0% { transform: scale(1); opacity: 1; }
-      100% { transform: scale(3); opacity: 0; }
-    }
-.scorePopup {
-  position: absolute;
-  color: lime;
-  font-size: 20px;
-  font-weight: bold;
-  animation: floatUp 1s ease-out forwards;
-  pointer-events: none;
-  z-index: 999;
-}
-
-@keyframes floatUp {
-  0% { transform: translateY(0); opacity: 1; }
-  100% { transform: translateY(-40px); opacity: 0; }
-}
-
-    #score, #lives, #missed {
-      color: white;
-      font-size: 18px;
-      position: absolute;
-      top: 10px;
-    }
-
-    #score { left: 10px; }
-    #lives { left: 150px; }
-    #missed { left: 250px; }
-
-    #gameOverScreen {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.85);
-  color: white;
-  font-size: 28px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  display: none;
-
-  z-index: 9999; /* ✅ Add this line */
-}
-
-    #restartBtn {
+    #gameOverScreen button {
+      margin-top: 10px;
       padding: 10px 20px;
-      background: red;
+      background: gold;
+      color: black;
       border: none;
-      color: white;
-      font-size: 18px;
-      margin-top: 20px;
+      font-weight: bold;
+      font-size: 16px;
+      border-radius: 6px;
       cursor: pointer;
-      border-radius: 10px;
     }
-    
+    #shop {
+      margin-top: 20px;
+      background: #222;
+      padding: 10px;
+      border-radius: 10px;
+      border: 2px solid #00ffe0;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+      display: none;
+    }
+    .shop-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+    .item {
+      background: #111;
+      border: 1px solid #00ffe0;
+      border-radius: 8px;
+      text-align: center;
+      padding: 10px;
+      width: 100px;
+    }
+    .item img {
+      width: 60px;
+      height: 60px;
+    }
+    .buyBtn {
+      margin-top: 5px;
+      padding: 5px;
+      font-weight: bold;
+      background: gold;
+      color: black;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
-  <div id="gameArea">
-    <div id="score">Score: 0</div>
-    <div id="lives">Lives: 3</div>
-    <div id="missed">Missed: 0</div>
-    <div id="playerBox"></div>
-    <div id="gameOverScreen">
-      <div id="adminHint" style="
-  position: absolute;
-  top: 45px;
-  left: 10px;
-  color: yellow;
-  font-size: 16px;
-  display: none;
-  z-index: 1000;
-">
-  🔒 Admin Password: <b>deepak33</b>
+
+<div id="gameArea">
+  <div id="score">Score: 0</div>
+  <div id="lives">Lives: 5</div>
+  <div id="missed">Missed: 0</div>
+  <div id="coins">Coins: 0</div>
+  <div id="playerBox"></div>
+  <div id="gameOverScreen">
+    <h2>Game Over</h2>
+    <div id="finalScore"></div>
+    <button onclick="restartGame()">🔁 Restart</button>
+    <button onclick="toggleShop()">🛒 Shop</button>
+  </div>
 </div>
 
-      <div>Game Over</div>
-      <div id="finalScore"></div>
-      <button id="restartBtn">Restart</button>
+<div id="shop">
+  <h2>🛍️ Skins Shop</h2>
+  <div class="shop-items">
+    <div class="item" data-price="50" data-skin="Red">
+      <img src="https://cdn-icons-png.flaticon.com/512/892/892458.png" />
+      <p>Red Skin<br><b>50 Coins</b></p>
+      <button class="buyBtn">Buy</button>
+    </div>
+    <div class="item" data-price="100" data-skin="Box">
+      <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" />
+      <p>Box Skin<br><b>100 Coins</b></p>
+      <button class="buyBtn">Buy</button>
+    </div>
+    <div class="item" data-price="200" data-skin="Speed">
+      <img src="https://cdn-icons-png.flaticon.com/512/616/616408.png" />
+      <p>Speed Up<br><b>200 Coins</b></p>
+      <button class="buyBtn">Buy</button>
+    </div>
+    <div class="item" data-price="500" data-skin="Rare">
+      <img src="https://cdn-icons-png.flaticon.com/512/1046/1046751.png" />
+      <p>Rare Catcher<br><b>500 Coins</b></p>
+      <button class="buyBtn">Buy</button>
     </div>
   </div>
+</div>
 
-  <audio id="catchSound" src="https://www.fesliyanstudios.com/play-mp3/387" preload="auto"></audio>
- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+const gameArea = document.getElementById("gameArea");
+const player = document.getElementById("playerBox");
+const scoreDisplay = document.getElementById("score");
+const livesDisplay = document.getElementById("lives");
+const missedDisplay = document.getElementById("missed");
+const coinsDisplay = document.getElementById("coins");
+const gameOverScreen = document.getElementById("gameOverScreen");
+const finalScore = document.getElementById("finalScore");
+const shop = document.getElementById("shop");
 
+let playerX = 200;
+let score = 0;
+let lives = 5;
+let missed = 0;
+let coins = parseInt(localStorage.getItem("coins")) || 0;
+let fallSpeed = 2.5;
+let logos = [];
+let gameRunning = true;
 
-  <script>
-    const gameArea = document.getElementById("gameArea");
-    const player = document.getElementById("playerBox");
-    const scoreDisplay = document.getElementById("score");
-    const livesDisplay = document.getElementById("lives");
-    const missedDisplay = document.getElementById("missed");
-    const gameOverScreen = document.getElementById("gameOverScreen");
-    const finalScore = document.getElementById("finalScore");
-    const restartBtn = document.getElementById("restartBtn");
+const logoUrls = [
+  "https://yt3.googleusercontent.com/y_0z6COuPRpXPa43q3hKIl_DzjrAqwebmdxDl5S2_SZaY8zxYWkOTcdohdZSl23fFarTNJxeltQ=s160-c-k-c0x00ffffff-no-rj",
+  "https://yt3.ggpht.com/cxE8FStJktJ2oiuv1f-7OHMfJI7ZlMby4NgPDkfJTyV3sOsvdo5pmsAb8TAcJVNor6gNT2h_0w=s176-c-k-c0x00ffffff-no-rj-mo"
+];
+const rareLogo = {
+  url: "https://yt3.googleusercontent.com/G9TX0i4yT5LDN2VZ7Z96DbsP5iRI5wR_u71yAwBY71rkDP84lWaJwZ342beeLfd3YbZEaHx3Ww=s160-c-k-c0x00ffffff-no-rj",
+  score: 10
+};
 
-    const catchSound = document.getElementById("catchSound");
-    const bgMusic = document.getElementById("bgMusic");
+coinsDisplay.textContent = "Coins: " + coins;
 
-    let playerX = 200;
-    let score = 0;
-    let lives = 3;
-    let missed = 0;
-    let logos = [];
-    let gameRunning = true;
-    let fallSpeed = 2.5;
-    let spawnInterval;
-    let difficultyTimer;
-
-    const logoUrls = [
-      "https://yt3.googleusercontent.com/y_0z6COuPRpXPa43q3hKIl_DzjrAqwebmdxDl5S2_SZaY8zxYWkOTcdohdZSl23fFarTNJxeltQ=s160-c-k-c0x00ffffff-no-rj",
-      "https://yt3.ggpht.com/nxYrc_1_2f77DoBadyxMTmv7ZpRZapHR5jbuYe7PlPd5cIRJxtNNEYyOC0ZsxaDyJJzXrnJiuDE=s176-c-k-c0x00ffffff-no-rj-mo",
-      "https://yt3.ggpht.com/cxE8FStJktJ2oiuv1f-7OHMfJI7ZlMby4NgPDkfJTyV3sOsvdo5pmsAb8TAcJVNor6gNT2h_0w=s176-c-k-c0x00ffffff-no-rj-mo",
-      "https://yt3.googleusercontent.com/ytc/AIdro_n6rCnXvBYGxRd-gdNXLc2pxyX7ClUTYGhEiP3g6vpWKnI=s176-c-k-c0x00ffffff-no-rj-mo",
-    ];
-
-    const rareLogo = {
-      url:"https://yt3.googleusercontent.com/G9TX0i4yT5LDN2VZ7Z96DbsP5iRI5wR_u71yAwBY71rkDP84lWaJwZ342beeLfd3YbZEaHx3Ww=s160-c-k-c0x00ffffff-no-rj",
-      score: 5
-    };
-
-   document.addEventListener("keydown", (e) => {
+document.addEventListener("keydown", (e) => {
   if (!gameRunning) return;
   if (e.key === "ArrowLeft") playerX -= 20;
   if (e.key === "ArrowRight") playerX += 20;
-
   const maxX = gameArea.offsetWidth - player.offsetWidth;
-  if (playerX < 0) playerX = 0;
-  if (playerX > maxX) playerX = maxX;
-
+  playerX = Math.max(0, Math.min(playerX, maxX));
   player.style.left = playerX + "px";
 });
 
+function spawnLogo() {
+  if (!gameRunning) return;
+  const logo = document.createElement("img");
+  const isRare = Math.random() < 0.1;
+  logo.src = isRare ? rareLogo.url : logoUrls[Math.floor(Math.random() * logoUrls.length)];
+  logo.className = "logo";
+  if (isRare) logo.classList.add("rare");
+  logo.dataset.points = isRare ? 10 : 3;
+  logo.style.left = Math.random() * (gameArea.offsetWidth - 40) + "px";
+  gameArea.appendChild(logo);
+  logos.push(logo);
+}
 
-    // 👇 Touch controls
-    let touchStartX = null;
-    gameArea.addEventListener("touchstart", (e) => {
-      touchStartX = e.touches[0].clientX;
-    });
-   gameArea.addEventListener("touchmove", (e) => {
-  if (!gameRunning || touchStartX === null) return;
-  const touchX = e.touches[0].clientX;
-  const deltaX = touchX - touchStartX;
-  touchStartX = touchX;
-  playerX += deltaX;
-
-  const maxX = gameArea.offsetWidth - player.offsetWidth;
-  if (playerX < 0) playerX = 0;
-  if (playerX > maxX) playerX = maxX;
-
-  player.style.left = playerX + "px";
-});
-
-    gameArea.addEventListener("touchend", () => {
-      touchStartX = null;
-    });
-
-    function spawnLogo() {
-      if (!gameRunning) return;
-      const logo = document.createElement("img");
-
-      let isRare = Math.random() < 0.1; // 10% chance
-      logo.src = isRare ? rareLogo.url : logoUrls[Math.floor(Math.random() * logoUrls.length)];
-      logo.className = "logo";
-      if (isRare) logo.classList.add("rare");
-      logo.dataset.points = isRare ? rareLogo.score : 1;
-    const maxLogoLeft = gameArea.offsetWidth - 40; // 40 = logo width
-logo.style.left = Math.floor(Math.random() * maxLogoLeft) + "px";
-
-      logo.style.top = "0px";
-      gameArea.appendChild(logo);
-      logos.push(logo);
-    }
-
-    function isColliding(a, b) {
-      return !(
-        a.offsetTop > b.offsetTop + b.offsetHeight ||
-        a.offsetTop + a.offsetHeight < b.offsetTop ||
-        a.offsetLeft > b.offsetLeft + b.offsetWidth ||
-        a.offsetLeft + a.offsetWidth < b.offsetLeft
-      );
-    }
-
-    function showCatchEffect(x, y) {
-      const effect = document.createElement("div");
-      effect.className = "catchEffect";
-      effect.style.left = x + "px";
-      effect.style.top = y + "px";
-      gameArea.appendChild(effect);
-      setTimeout(() => effect.remove(), 400);
-    }
-
-    function updateScore(points) {
-      score += points;
-      scoreDisplay.textContent = "Score: " + score;
-      
-    }
-
-    function loseLife() {
-      lives--;
+function gameLoop() {
+  if (!gameRunning) return;
+  logos.forEach((logo, i) => {
+    logo.style.top = (logo.offsetTop + fallSpeed) + "px";
+    if (logo.offsetTop > gameArea.offsetHeight) {
+      logo.remove();
+      logos.splice(i, 1);
       missed++;
-      livesDisplay.textContent = "Lives: " + lives;
       missedDisplay.textContent = "Missed: " + missed;
-      if (lives <= 0) endGame();
+      if (missed >= 5) endGame();
     }
+    if (isColliding(logo, player)) {
+      const pts = parseInt(logo.dataset.points);
+      score += pts;
+      coins += pts;
+      logo.remove();
+      logos.splice(i, 1);
+      updateDisplay();
+    }
+  });
+  requestAnimationFrame(gameLoop);
+}
 
-  function endGame() {
+function isColliding(a, b) {
+  return !(
+    a.offsetTop > b.offsetTop + b.offsetHeight ||
+    a.offsetTop + a.offsetHeight < b.offsetTop ||
+    a.offsetLeft > b.offsetLeft + b.offsetWidth ||
+    a.offsetLeft + a.offsetWidth < b.offsetLeft
+  );
+}
+
+function updateDisplay() {
+  scoreDisplay.textContent = "Score: " + score;
+  coinsDisplay.textContent = "Coins: " + coins;
+  livesDisplay.textContent = "Lives: " + lives;
+  localStorage.setItem("coins", coins);
+}
+
+function endGame() {
   gameRunning = false;
-  clearInterval(spawnInterval);
-  clearInterval(difficultyTimer);
-
-  if (score >= 250 && !localStorage.getItem("adminLoggedIn")) {
-    localStorage.setItem("adminUnlock", "true"); // Mark unlock
-
-    // Show popup first
-    Swal.fire({
-      title: "🎉 Admin Unlocked!",
-       width: '280px',   
-      text: "Your Admin Password is: deepak33",
-      icon: "success",
-      background: "#1e1e1e",
-      color: "#fff",
-      confirmButtonText: "OK",
-      allowOutsideClick: false,
-      allowEscapeKey: false
-    }).then(() => {
-      // ✅ After OK: show GameOver screen + show admin password text
-      gameOverScreen.style.display = "flex";
-      finalScore.textContent = "Final Score: " + score;
-      document.getElementById("adminHint").style.display = "block";
-
-      // Keep showing hint until login
-      checkAdminLoop();
-    });
-  } else {
-    // Normal game over
-    gameOverScreen.style.display = "flex";
-    finalScore.textContent = "Final Score: " + score;
-  }
-}
-
-
-function showAdminPasswordPopup() {
- Swal.fire({
-  title: "🎉 Admin Unlocked!",
-   width: '280px',   
-  text: "Your Admin Password is: deepak33",
-  icon: "success",
-  background: "#1e1e1e",
-  color: "#fff",
-  confirmButtonText: "OK",
-  allowOutsideClick: false,
-  allowEscapeKey: false
-}).then(() => {
-  // ✅ Set login status after first OK
-  localStorage.setItem("adminLoggedIn", "true");
-
-  // Then show game over screen
-  gameOverScreen.style.display = "flex";
   finalScore.textContent = "Final Score: " + score;
-});
+  gameOverScreen.style.display = "flex";
 }
 
-  
-function showScorePopup(x, y, points) {
-  const popup = document.createElement("div");
-  popup.className = "scorePopup";
-  popup.textContent = "+" + points;
-  popup.style.left = x + "px";
-  popup.style.top = y + "px";
-  gameArea.appendChild(popup);
-  setTimeout(() => popup.remove(), 1000);
+function restartGame() {
+  score = 0;
+  lives = 5;
+  missed = 0;
+  playerX = 200;
+  player.style.left = playerX + "px";
+  logos.forEach(logo => logo.remove());
+  logos = [];
+  gameRunning = true;
+  gameOverScreen.style.display = "none";
+  updateDisplay();
+  startGame();
 }
 
-    function restartGame() {
-      clearInterval(spawnInterval);
-      clearInterval(difficultyTimer);
-      score = 0;
-      lives = 3;
-      missed = 0;
-      fallSpeed = 2.5;
-      gameRunning = true;
-      scoreDisplay.textContent = "Score: 0";
-      livesDisplay.textContent = "Lives: 3";
-      missedDisplay.textContent = "Missed: 0";
-    playerX = (gameArea.offsetWidth - player.offsetWidth) / 2;
-player.style.left = playerX + "px";
+function startGame() {
+  setInterval(spawnLogo, 1000);
+  setInterval(() => {
+    if (fallSpeed < 10) fallSpeed += 0.2;
+  }, 3000);
+  gameLoop();
+}
+startGame();
 
-      gameOverScreen.style.display = "none";
-      logos.forEach(l => l.remove());
-      logos = [];
-      spawnInterval = setInterval(spawnLogo, 1000);
-      difficultyTimer = setInterval(() => {
-        if (fallSpeed < 10) fallSpeed += 0.2;
-      }, 4000); // Every 4 sec, speed up
-      gameLoop();
-    }
+function toggleShop() {
+  shop.style.display = shop.style.display === "block" ? "none" : "block";
+}
 
-    restartBtn.onclick = restartGame;
-
-    function gameLoop() {
-      if (!gameRunning) return;
-      logos.forEach((logo, index) => {
-        logo.style.top = logo.offsetTop + fallSpeed + "px";
-
-        if (isColliding(logo, player)) {
-          const points = +logo.dataset.points || 1;
-          catchSound.play();
-          showCatchEffect(logo.offsetLeft, logo.offsetTop);
-            showScorePopup(logo.offsetLeft, logo.offsetTop, points); // 👉 यह नई लाइन
-          logo.remove();
-          logos.splice(index, 1);
-          updateScore(points);
-        }
-
-        if (logo.offsetTop > 600) {
-          logo.remove();
-          logos.splice(index, 1);
-          loseLife();
-        }
-      });
-      // 🔐 Admin Password पर क्लिक करने पर लॉगिन पूछेगा
-document.getElementById("adminHint").onclick = function () {
-  const input = prompt("🔒 Admin Password डालें:");
-  if (input === "deepak33") {
-    localStorage.setItem("adminLoggedIn", "true");
-    alert("✅ Admin Login सफल!");
-    document.getElementById("adminHint").style.display = "none";
-  } else {
-    alert("❌ गलत Password");
+document.querySelectorAll(".item").forEach(item => {
+  const buyBtn = item.querySelector(".buyBtn");
+  const skin = item.dataset.skin;
+  const price = parseInt(item.dataset.price);
+  const owned = JSON.parse(localStorage.getItem("ownedSkins") || "[]");
+  if (owned.includes(skin)) {
+    buyBtn.textContent = "Enable";
   }
-};
-
-      requestAnimationFrame(gameLoop);
+  buyBtn.onclick = () => {
+    const owned = JSON.parse(localStorage.getItem("ownedSkins") || "[]");
+    if (!owned.includes(skin)) {
+      if (coins >= price) {
+        coins -= price;
+        owned.push(skin);
+        localStorage.setItem("ownedSkins", JSON.stringify(owned));
+        buyBtn.textContent = "Enable";
+        updateDisplay();
+      } else {
+        alert("Not enough coins");
+      }
+    } else {
+      localStorage.setItem("selectedSkin", skin);
+      updateSkin();
     }
+  };
+});
 
-    // Start the game
-    spawnInterval = setInterval(spawnLogo, 1000);
-    difficultyTimer = setInterval(() => {
-      if (fallSpeed < 10) fallSpeed += 0.2;
-    }, 4000);
-    gameLoop();
-  </script>
+function updateSkin() {
+  const skin = localStorage.getItem("selectedSkin");
+  const skinMap = {
+      "Default": "https://cdn-icons-png.flaticon.com/512/149/149071.png", // 👈 नया default जोड़ा गया
+    "Red": "https://cdn-icons-png.flaticon.com/512/892/892458.png",
+    "Box": "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+    "Speed": "https://cdn-icons-png.flaticon.com/512/616/616408.png",
+    "Rare": "https://cdn-icons-png.flaticon.com/512/1046/1046751.png"
+  };
+  if (skinMap[skin]) {
+    player.style.backgroundImage = `url(${skinMap[skin]})`;
+  } else {
+    player.style.backgroundImage = "none";
+  }
+}
+if (!localStorage.getItem("selectedSkin")) {
+  localStorage.setItem("selectedSkin", "Default");
+}
+updateSkin();
+
+</script>
 </body>
 </html>

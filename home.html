@@ -2,6 +2,8 @@
 <html lang="hi">
 <head>
   <meta charset="UTF-8" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FactsBoltx | Video Information</title>
   <link rel="stylesheet" href="home.css">
@@ -30,12 +32,55 @@
 <body>
 
    <div class="top-bar">
-    <h2 id="subscriberCount">Subscribers: ...</h2>
-    <button onclick="verifyAdminCode()" id="adminCodeBtn" class="upload-btn"><i class="fa-solid fa-user-tie"></i> Admin Login</button>
+    <h2 id="subscriberCount"><i class="fa-solid fa-people-group"></i> Subscribers: ...</h2>
+    
+    <button onclick="verifyAdminCode()" id="adminCodeBtn" class="upload-btn locked">
+  <i class="fa-solid fa-user-tie"></i> Admin Login
+  <i class="fa-solid fa-lock lock-icon"></i>
+</button>
+
     <button id="showFormBtn"  style="display:none"class="upload-btn"><i class="fa-solid fa-upload" ></i> Upload Video</button>
-    <a href="space.html" class="btn puzzle-btn">
-  <i class="fa-solid fa-gamepad"></i> Let's Play Game
+   <!-- <a href="space.html" class="btn puzzle-btn">
+  <i class="fa-solid fa-gamepad"></i> Let's Play Game <i class="fa-solid fa-lock lock-icon"></i>
+</a>-->
+<a href="#" id="disabledGameBtn" class="btn puzzle-btn">
+  <i class="fa-solid fa-gamepad"></i> Let's Play Game <i class="fa-solid fa-lock lock-icon"></i>
 </a>
+<script>
+  document.getElementById("disabledGameBtn").addEventListener("click", function(e) {
+    e.preventDefault(); // 🚫 लिंक को ब्लॉक कर देता है
+    Swal.fire({
+      icon: "info",
+      title: "🔒 Locked!",
+      text: "This game is temporarily locked by the admin",
+      background: "#1e1e1e",
+      color: "#ffffff",
+      width: "280px"
+    });
+  });
+</script>
+
+<a href="chart.html" class="btn puzzle-btn">
+  <i class="fa-solid fa-chart-simple"></i> View Analytics
+</a>
+
+<div id="coinBox" style="
+  display: inline-flex;
+  align-items: center;
+  background-color: #2c2c2c;
+  color: #ffd700;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 17px;
+  font-weight: bold;
+  font-family: 'JetBrains Mono', monospace;
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+  margin: 10px;
+">
+  <i class="fa-solid fa-coins" style="margin-right: 8px;"></i>
+  <span id="coinCount">0</span> 
+</div>
+
 
   </div>
 
@@ -54,14 +99,22 @@
 </div>
 
 
+
   <div class="container">
    
 
-    <select id="videoDropdown" onchange="onVideoSelect()"></select>
+    <div class="custom-dropdown">
+  <div class="selected" onclick="toggleDropdown()">🎬 Select Video</div>
+  <div class="options" id="dropdownOptions"></div>
+</div>
+
 
     <a id="videoLink" href="#" target="_blank">
       <img id="thumbnail" src="" alt="Video Thumbnail" class="video-thumb" />
     </a>
+<div class="watch-now-wrapper">
+  <a id="watchNowBtn" class="btn blue" target="_blank">🎬 Watch Now on YouTube</a>
+</div>
 
     <div class="info-bar">
       <div id="videoStats">
@@ -74,17 +127,59 @@
 <textarea id="scriptArea" rows="6" placeholder="Video Script..." readonly></textarea>
 <textarea id="hashtagArea" rows="3" placeholder="#hashtags" readonly></textarea>
 
-
+<div class="share-buttons">
+  <a href="#" id="whatsappShare" target="_blank"><i class="fa-brands fa-whatsapp"></i> Share</a>
+  <a href="#" id="facebookShare" target="_blank"><i class="fa-brands fa-facebook"></i> Share</a>
+  <a href="#" id="twitterShare" target="_blank"><i class="fa-brands fa-twitter"></i> Share</a>
+</div>
+<div style="height: 20px;"></div>
     <div class="button-group">
       <button onclick="copyScript()" class="btn blue"><i class="fa-solid fa-copy"></i> Copy Script</button>
       <button onclick="updateVideo()" id="updateBtn" class="btn green" disabled><i class="fa-solid fa-pen-nib"></i> Update</button>
       <button onclick="deleteSelected()" id="deleteBtn" class="btn red" disabled><i class="fa-solid fa-trash"></i> Delete</button>
     </div>
   </div>
+  
+<script>
+  // Initialize coins from localStorage
+  let coins = parseInt(localStorage.getItem("userCoins") || "0");
+  document.addEventListener("DOMContentLoaded", () => {
+    updateCoinUI();
+  });
+
+  function updateCoinUI() {
+    document.getElementById("coinCount").textContent = coins;
+  }
+
+  function addCoins(amount) {
+    coins += amount;
+    localStorage.setItem("userCoins", coins);
+    updateCoinUI();
+    Swal.fire({
+      icon: "success",
+      title: `🎉 You've earned ${amount} coins!`,
+      showConfirmButton: false,
+      timer: 2000
+    });
+  }
+</script>
+<script>
+  document.getElementById("whatsappShare").addEventListener("click", () => {
+    addCoins(20);
+  });
+
+  document.getElementById("facebookShare").addEventListener("click", () => {
+    addCoins(20);
+  });
+
+  document.getElementById("twitterShare").addEventListener("click", () => {
+    addCoins(20);
+  });
+</script>
 
   <script>
     const API_KEY = "AIzaSyAa5mJThKeXqIbcB_pBIE4jOlTw04Ej2fU";
-    const ADMIN_CODE = "deepak33";
+    const ADMIN_CODE = "deepak95";
     let isAdmin = false;
     let currentKey = null;
     let allVideos = [];
@@ -111,56 +206,152 @@
 
    function verifyAdminCode() {
   Swal.fire({
-  title: '🔐 Admin Login',
-   width: '300px',    
-  background: '#1e1e1e',            // Dark background
-  color: '#ffffff',                 // White text
-  input: 'password',
-  inputLabel: 'Enter Admin Password',
-  inputPlaceholder: '••••••••',
-  inputAttributes: {
-    autocapitalize: 'off',
-    autocorrect: 'off'
-  },
-  showCancelButton: true,
-  confirmButtonText: 'Login',
-  preConfirm: (code) => {
-    if (!code) {
-      Swal.showValidationMessage('⚠️ Please enter password');
-      return false;
-    }
-    return code;
-  }
-}).then(result => {
-  if (result.isConfirmed) {
-    const code = result.value;
-    if (code === ADMIN_CODE) {
-      isAdmin = true;
-      localStorage.setItem("admin", "true");
-      showAdminControls();
-      Swal.fire({
-        title: '✅ Success!',
-         width: '280px',   
-        text: 'Admin access granted.',
-        icon: 'success',
-        background: '#1e1e1e',
-        color: '#ffffff'
-      });
-    } else {
-      Swal.fire({
-        title: '❌ Failed',
-        width: '280px',   
-        text: 'Invalid admin password.',
-        icon: 'error',
-        background: '#1e1e1e',
-        color: '#ffffff'
-      });
-    }
-  }
-});
+    title: '🔐 Admin Access',
+    html: `
+      <p style="margin-bottom: 10px;">Choose how you want to access admin mode:</p>
+      <button id="loginBtn" class="swal2-confirm swal2-styled" style="background-color:#3b82f6; margin-bottom: 10px; width: 100%;">
+        🔑 Login with Password
+      </button><br>
+      <button id="buyBtn" class="swal2-confirm swal2-styled" style="background-color:#22c55e; width: 100%;" ${coins < 1000 ? "disabled" : ""}>
+         Purchase Admin Mode(1000 coins)
+      </button>
+    `,
+    showConfirmButton: false,
+    background: '#1e1e1e',
+    color: '#ffffff',
+    didOpen: () => {
+      const loginBtn = document.getElementById('loginBtn');
+      const buyBtn = document.getElementById('buyBtn');
 
+      // 🔑 Login with Password
+      loginBtn.addEventListener('click', () => {
+        Swal.close();
+        showPasswordPrompt();
+      });
+
+      // 🪙 Buy Admin Access
+      buyBtn.addEventListener('click', () => {
+        if (coins >= 1000) {
+          coins -= 1000;
+          localStorage.setItem("userCoins", coins);
+          updateCoinUI();
+          isAdmin = true;
+          localStorage.setItem("admin", "true");
+          showAdminControls();
+          Swal.fire({
+            title: '✅ Success!',
+            text: 'You are now an admin.',
+            icon: 'success',
+            background: '#1e1e1e',
+            color: '#ffffff',
+            width: "280px"
+          });
+        }
+      });
+    }
+  });
+}
+function showPasswordPrompt() {
+  Swal.fire({
+    title: '🔐 Enter Admin Password',
+    width: '280px',
+    background: '#1e1e1e',
+    color: '#ffffff',
+    input: 'password',
+    inputLabel: 'Admin Password',
+    inputPlaceholder: '••••••••',
+    inputAttributes: {
+      autocapitalize: 'off',
+      autocorrect: 'off'
+    },
+    showCancelButton: true,
+    confirmButtonText: 'Login',
+    preConfirm: (code) => {
+      if (!code) {
+        Swal.showValidationMessage('⚠️ Please enter password');
+        return false;
+      }
+      return code;
+    }
+  }).then(result => {
+    if (result.isConfirmed) {
+      const code = result.value;
+      if (code === ADMIN_CODE) {
+        isAdmin = true;
+        localStorage.setItem("admin", "true");
+        showAdminControls();
+        Swal.fire({
+          title: '✅ Success!',
+          text: 'Admin access granted.',
+          icon: 'success',
+          background: '#1e1e1e',
+          color: '#ffffff',
+          width: '280px'
+        });
+      } else {
+        Swal.fire({
+          title: '❌ Failed',
+          text: 'Invalid admin password.',
+          icon: 'error',
+          background: '#1e1e1e',
+          color: '#ffffff',
+          width: '280px'
+        });
+      }
+    }
+  });
 }
 
+
+function toggleDropdown() {
+  const selected = document.querySelector(".selected");
+  const options = document.getElementById("dropdownOptions");
+
+  if (options.style.display === "block") {
+    options.style.display = "none";
+    selected.classList.remove("open");
+  } else {
+    options.style.display = "block";
+    selected.classList.add("open");
+  }
+}
+function updateShareLinks(videoId, title) {
+  const url = `https://www.youtube.com/watch?v=${videoId}`;
+  document.getElementById("whatsappShare").href = `https://wa.me/?text=${encodeURIComponent(title + " 🔗 " + url)}`;
+  document.getElementById("facebookShare").href = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+  document.getElementById("twitterShare").href = `https://twitter.com/intent/tweet?url=${url}&text=${encodeURIComponent(title)}`;
+  
+}
+
+
+function selectVideo(video, key, shouldToggle = true) {
+  document.querySelector(".selected").textContent = "🎬 " + video.title;
+
+  if (shouldToggle) {
+    toggleDropdown();  // ✅ सिर्फ तभी toggle होगा जब चाहिए
+  } else {
+    // 🚫 dropdown बंद कर दो अगर टॉगल नहीं करना है
+    const options = document.getElementById("dropdownOptions");
+    options.style.display = "none";
+    document.querySelector(".selected").classList.remove("open");
+  }
+
+  currentKey = key;
+  populateDetails(video);
+}
+
+
+// This replaces <select> render
+function renderDropdown(videos) {
+  const optionsContainer = document.getElementById("dropdownOptions");
+  optionsContainer.innerHTML = "";
+  videos.forEach(video => {
+    const div = document.createElement("div");
+    div.textContent = video.title;
+    div.onclick = () => selectVideo(video, video.key);
+    optionsContainer.appendChild(div);
+  });
+}
 
 
     function showAdminControls() {
@@ -344,13 +535,23 @@ function hideUploadForm() {
   // Optional: fields भी साफ कर दो
   resetUploadForm();
 }
-    function resetDisplay() {
-      thumbnail.src = "";
-      scriptArea.value = "";
-      hashtagArea.value = "";
-      currentKey = null;
-      videoDropdown.selectedIndex = 0;
-    }
+   function resetDisplay() {
+  thumbnail.src = "";
+  scriptArea.value = "";
+  hashtagArea.value = "";
+  currentKey = null;
+
+  // 🎬 Custom dropdown को "Select Video" पर रीसेट करो
+  document.querySelector(".selected").textContent = "🎬 Select Video";
+
+  // बाकी सब को भी रीसेट करो
+  videoLink.href = "#";
+  videoViews.innerHTML = '<i class="fa-solid fa-eye"></i>  --';
+  videoLikes.innerHTML = '<i class="fa-solid fa-thumbs-up"></i>  --';
+  videoDate.innerHTML = '<i class="fa-solid fa-calendar-days"></i>  --';
+  subscriberCount.innerHTML = '<i class="fa-solid fa-people-group"></i> Subscribers: --';
+}
+
 
   async function loadYouTubeData(videoId) {
   showLoader(); // 👈 Start loader
@@ -369,8 +570,9 @@ function hideUploadForm() {
       const channelData = await channelRes.json();
       const channel = channelData.items[0];
       if (channel) {
-        subscriberCount.textContent = `Subscribers: ${channel.statistics.subscriberCount}`;
-      }
+  subscriberCount.innerHTML = `<i class="fa-solid fa-people-group"></i> Subscribers: ${channel.statistics.subscriberCount}`;
+}
+
     }
   } catch (err) {
     console.error("YouTube API Error", err);
@@ -383,10 +585,8 @@ function hideUploadForm() {
 }
 
 
-   function loadVideos(selectedId = null) {
-  showLoader(); // 👈 Loader Start
-  videoDropdown.innerHTML = "";
-
+  function loadVideos(selectedId = null) {
+  showLoader();
   db.ref("videos").once("value", snap => {
     allVideos = [];
     snap.forEach(child => {
@@ -394,28 +594,20 @@ function hideUploadForm() {
       video.key = child.key;
       allVideos.push(video);
     });
-    allVideos.sort((a, b) => new Date(b.date) - new Date(a.date));
-    allVideos.forEach(video => {
-      const opt = document.createElement("option");
-      opt.value = video.key;
-      opt.textContent = video.title;
-      videoDropdown.appendChild(opt);
-    });
 
-    if (selectedId) {
-      const match = allVideos.find(v => v.videoId === selectedId);
-      if (match) {
-        videoDropdown.value = match.key;
-        populateDetails(match);
-      }
-    } else if (allVideos.length > 0) {
-      videoDropdown.value = allVideos[0].key;
-      populateDetails(allVideos[0]);
+    allVideos.sort((a, b) => new Date(b.date) - new Date(a.date));
+    renderDropdown(allVideos); // 👈 custom dropdown render
+
+    if (allVideos.length > 0) {
+      const firstVideo = allVideos[0];
+      selectVideo(firstVideo, firstVideo.key, false); // 🚫 dropdown को ना खोलो
+
     }
 
-    hideLoader(); // 👈 Loader End
+    hideLoader();
   });
 }
+
 
     function onVideoSelect() {
       const key = videoDropdown.value;
@@ -427,6 +619,8 @@ function hideUploadForm() {
 
    function populateDetails(video) {
   const vid = video.videoId;
+  updateShareLinks(video.videoId, video.title);
+
   currentKey = video.key; // 👈 यह जोड़ो: thumbnail वाली वीडियो की key set करो
 
   thumbnail.src = `https://img.youtube.com/vi/${vid}/hqdefault.jpg`;
@@ -437,6 +631,7 @@ function hideUploadForm() {
   videoIdInput.value = video.videoId;
   scriptInput.value = video.script;
   hashtagsInput.value = video.hashtags;
+    document.getElementById("watchNowBtn").href = `https://www.youtube.com/watch?v=${vid}`;
   loadYouTubeData(vid);
 }
 function showLoader() {
