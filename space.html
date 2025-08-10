@@ -1,348 +1,431 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="hi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Logo Catcher Game</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: #111;
-      color: white;
-    }
-    #gameArea {
-      position: relative;
-      width: 95%;
-      max-width: 500px;
-      height: 90vh;
-      margin: 20px auto;
-      border: 2px solid #00ffe0;
-      border-radius: 10px;
-      background: #1e1e1e;
-      overflow: hidden;
-    }
-    #playerBox {
-  width: 80px;
-  height: 80px;
-  position: absolute;
-  bottom: 10px;
-  left: 200px;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-image: url("https://cdn-icons-png.flaticon.com/512/149/149071.png"); /* ✅ Default */
-}
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Titles & Hashtags Generator — Mobile Friendly</title>
+<meta name="description" content="Generate 10 short titles (<=40 chars) and 15+3 hashtags. Mobile optimized." />
+<style>
+  :root{
+    --bg:#f3f6fb; --card:#ffffff; --muted:#6b7280; --accent:#0b74ff; --accent-2:#084dc9;
+    --good:#10b981; --danger:#ef4444; --radius:14px; --shadow: 0 10px 30px rgba(11,84,160,0.08);
+    --max-width:900px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family:Inter, "Segoe UI", Roboto, system-ui, -apple-system;
+    background:linear-gradient(180deg,#eef6ff 0%,var(--bg) 60%);
+    color:#0f172a; padding:20px; display:flex; justify-content:center;
+  }
+  .wrap{width:100%; max-width:var(--max-width); background:var(--card); border-radius:18px; box-shadow:var(--shadow); overflow:hidden}
+  header{display:flex; gap:14px; align-items:center; padding:18px 20px; border-bottom:1px solid #eef2f7}
+  .logo{width:54px;height:54px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:grid;place-items:center;color:#fff;font-weight:700}
+  header h1{font-size:18px;margin:0}
+  header p{margin:0;font-size:13px;color:var(--muted)}
 
-    .logo {
-      width: 40px;
-      height: 40px;
-      position: absolute;
-      top: 0;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid #00e0ff;
-    }
-    .rare {
-      border-color: gold;
-    }
-    #score, #lives, #missed, #coins {
-      position: absolute;
-      top: 5px;
-      background: #222;
-      border-radius: 6px;
-      padding: 5px 8px;
-      font-size: 14px;
-      border: 1px solid #00ffe0;
-    }
-    #score { left: 10px; }
-    #lives { left: 90px; }
-    #missed { left: 170px; }
-    #coins {
-      right: 10px;
-      color: gold;
-      border-color: gold;
-    }
-    #gameOverScreen {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.9);
-      display: none;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 10;
-    }
-    #gameOverScreen button {
-      margin-top: 10px;
-      padding: 10px 20px;
-      background: gold;
-      color: black;
-      border: none;
-      font-weight: bold;
-      font-size: 16px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    #shop {
-      margin-top: 20px;
-      background: #222;
-      padding: 10px;
-      border-radius: 10px;
-      border: 2px solid #00ffe0;
-      max-width: 500px;
-      margin-left: auto;
-      margin-right: auto;
-      display: none;
-    }
-    .shop-items {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
-    }
-    .item {
-      background: #111;
-      border: 1px solid #00ffe0;
-      border-radius: 8px;
-      text-align: center;
-      padding: 10px;
-      width: 100px;
-    }
-    .item img {
-      width: 60px;
-      height: 60px;
-    }
-    .buyBtn {
-      margin-top: 5px;
-      padding: 5px;
-      font-weight: bold;
-      background: gold;
-      color: black;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-  </style>
+  .content{display:grid; grid-template-columns:1fr 380px; gap:18px; padding:18px}
+  @media(max-width:920px){ .content{grid-template-columns:1fr} .right{order:2} }
+
+  /* left panel */
+  .panel{background:linear-gradient(180deg, rgba(255,255,255,0.6), var(--card)); border-radius:12px; padding:14px}
+  label{display:block;font-weight:700;margin-bottom:8px}
+  textarea{width:100%;min-height:180px;padding:12px;border-radius:10px;border:1px solid #e6eefb;font-size:15px;resize:vertical}
+  .controls{display:flex;gap:10px;align-items:center;margin-top:12px}
+  .btn{background:var(--accent);color:#fff;border:0;padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:700}
+  .btn.ghost{background:transparent;color:var(--muted);border:1px solid #eef2f7}
+  .btn.secondary{background:#eef6ff;color:var(--accent)}
+  .btn:disabled{opacity:0.6;cursor:default}
+
+  /* right panel (output) */
+  .right .card{padding:14px;border-radius:12px;background:linear-gradient(180deg,#fff,#fbfdff);border:1px solid #f0f7ff}
+  .section-title{display:flex;align-items:center;justify-content:space-between}
+  pre.out{white-space:pre-wrap;font-size:15px;margin:8px 0;background:#f8fbff;padding:10px;border-radius:8px}
+  ol.titles{padding-left:18px;margin:10px 0}
+  ol.titles li{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:8px;background:#fcfeff;margin-bottom:8px}
+  .meta{font-size:13px;color:var(--muted)}
+  .chips{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .chip{background:#f3f4f6;padding:6px 10px;border-radius:999px;font-size:13px;color:#374151}
+
+  /* hashtags */
+  .hash-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .hash{background:#f1f5f9;padding:8px 10px;border-radius:8px;font-weight:600;cursor:pointer;border:1px solid transparent}
+  .hash:active{transform:translateY(1px)}
+  .hash.copied{background:var(--good);color:#fff;border-color:rgba(16,185,129,0.15)}
+
+  /* small helpers */
+  .muted{color:var(--muted)} .center{text-align:center}
+  .note{font-size:13px;color:var(--muted);margin-top:8px;text-align:center}
+  .footer{padding:14px;border-top:1px solid #eef2f7;text-align:center;font-size:13px;color:var(--muted)}
+
+  /* toast */
+  .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:26px;background:#111;color:#fff;padding:10px 14px;border-radius:10px;opacity:0;pointer-events:none;transition:all .25s}
+  .toast.show{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(-6px)}
+  /* spinner */
+  .spinner{display:inline-block;width:16px;height:16px;border:3px solid #fff;border-top-color:rgba(255,255,255,0.7);border-radius:50%;animation:spin 1s linear infinite;margin-left:8px;vertical-align:middle}
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
 </head>
 <body>
+  <div class="wrap" role="application" aria-label="Titles and Hashtags Generator">
+    <header>
+      <div class="logo">T10</div>
+      <div>
+        <h1>Short Titles & Hashtags</h1>
+        <p>Paste script → get 10 short titles (≤40 chars) + 15+3 hashtags. Mobile friendly.</p>
+      </div>
+    </header>
 
-<div id="gameArea">
-  <div id="score">Score: 0</div>
-  <div id="lives">Lives: 5</div>
-  <div id="missed">Missed: 0</div>
-  <div id="coins">Coins: 0</div>
-  <div id="playerBox"></div>
-  <div id="gameOverScreen">
-    <h2>Game Over</h2>
-    <div id="finalScore"></div>
-    <button onclick="restartGame()">🔁 Restart</button>
-    <button onclick="toggleShop()">🛒 Shop</button>
-  </div>
-</div>
+    <div class="content">
+      <!-- LEFT -->
+      <section class="panel left">
+        <label for="script">Paste your script / description</label>
+        <textarea id="script" placeholder="Paste Hindi/English script here..."></textarea>
 
-<div id="shop">
-  <h2>🛍️ Skins Shop</h2>
-  <div class="shop-items">
-    <div class="item" data-price="50" data-skin="Red">
-      <img src="https://cdn-icons-png.flaticon.com/512/892/892458.png" />
-      <p>Red Skin<br><b>50 Coins</b></p>
-      <button class="buyBtn">Buy</button>
+        <div class="controls">
+          <button id="generate" class="btn">Generate 10 Titles</button>
+          <button id="next" class="btn secondary" disabled>Next 10</button>
+          <button id="clear" class="btn ghost">Clear</button>
+          <div style="margin-left:auto" class="meta">Set: <span id="setNum">0</span></div>
+        </div>
+
+        <div class="controls" style="margin-top:10px">
+          <button id="hashtagsBtn" class="btn">Generate Hashtags</button>
+          <button id="copyAllHashtags" class="btn secondary" disabled>Copy All Hashtags</button>
+          <button id="download" class="btn ghost" disabled>Download .txt</button>
+        </div>
+
+        <p class="note">Demo uses client-side key. For production, keep API key on server.</p>
+      </section>
+
+      <!-- RIGHT -->
+      <aside class="right">
+        <div class="card">
+          <div class="section-title">
+            <div><strong>Titles (validated)</strong></div>
+            <div class="meta" id="counts">0 valid / 0 total</div>
+          </div>
+
+          <pre id="rawOut" class="out hidden"></pre>
+
+          <ol id="titlesList" class="titles" aria-live="polite"></ol>
+
+          <div class="chips">
+            <div class="chip">Model: deepseek-r1</div>
+            <div class="chip">Limit: 40 chars/title</div>
+            <div class="chip" id="statusChip">Idle</div>
+          </div>
+
+          <div style="margin-top:12px" class="section-title">
+            <strong>Hashtags</strong>
+            <div class="meta muted">Tap to copy</div>
+          </div>
+
+          <div id="hashtagsMain" class="hash-grid" aria-live="polite"></div>
+          <div id="hashtagsSmall" class="hash-grid" style="margin-top:8px"></div>
+
+          <div style="margin-top:12px" class="meta muted center" id="info">No items yet.</div>
+        </div>
+      </aside>
     </div>
-    <div class="item" data-price="100" data-skin="Box">
-      <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" />
-      <p>Box Skin<br><b>100 Coins</b></p>
-      <button class="buyBtn">Buy</button>
-    </div>
-    <div class="item" data-price="200" data-skin="Speed">
-      <img src="https://cdn-icons-png.flaticon.com/512/616/616408.png" />
-      <p>Speed Up<br><b>200 Coins</b></p>
-      <button class="buyBtn">Buy</button>
-    </div>
-    <div class="item" data-price="500" data-skin="Rare">
-      <img src="https://cdn-icons-png.flaticon.com/512/1046/1046751.png" />
-      <p>Rare Catcher<br><b>500 Coins</b></p>
-      <button class="buyBtn">Buy</button>
-    </div>
+
+    <div class="footer">Made for quick video creators • Replace client API key before publishing</div>
   </div>
-</div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
 <script>
-const gameArea = document.getElementById("gameArea");
-const player = document.getElementById("playerBox");
-const scoreDisplay = document.getElementById("score");
-const livesDisplay = document.getElementById("lives");
-const missedDisplay = document.getElementById("missed");
-const coinsDisplay = document.getElementById("coins");
-const gameOverScreen = document.getElementById("gameOverScreen");
-const finalScore = document.getElementById("finalScore");
-const shop = document.getElementById("shop");
+/* ================== CONFIG ================== */
+/* IMPORTANT: replace with your key OR call via your backend proxy */
+const API_KEY = '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';
+const API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+const MODEL = 'deepseek/deepseek-r1:free';
+const MAX_CHARS = 40;
 
-let playerX = 200;
-let score = 0;
-let lives = 5;
-let missed = 0;
-let coins = parseInt(localStorage.getItem("coins")) || 0;
-let fallSpeed = 2.5;
-let logos = [];
-let gameRunning = true;
+/* ================== UI REFS ================== */
+const scriptEl = document.getElementById('script');
+const generateBtn = document.getElementById('generate');
+const nextBtn = document.getElementById('next');
+const clearBtn = document.getElementById('clear');
+const setNumEl = document.getElementById('setNum');
+const rawOut = document.getElementById('rawOut');
+const titlesList = document.getElementById('titlesList');
+const countsEl = document.getElementById('counts');
+const statusChip = document.getElementById('statusChip');
+const infoEl = document.getElementById('info');
+const hashtagsBtn = document.getElementById('hashtagsBtn');
+const hashtagsMain = document.getElementById('hashtagsMain');
+const hashtagsSmall = document.getElementById('hashtagsSmall');
+const copyAllHashtagsBtn = document.getElementById('copyAllHashtags');
+const downloadBtn = document.getElementById('download');
+const toast = document.getElementById('toast');
 
-const logoUrls = [
-  "https://yt3.googleusercontent.com/y_0z6COuPRpXPa43q3hKIl_DzjrAqwebmdxDl5S2_SZaY8zxYWkOTcdohdZSl23fFarTNJxeltQ=s160-c-k-c0x00ffffff-no-rj",
-  "https://yt3.ggpht.com/cxE8FStJktJ2oiuv1f-7OHMfJI7ZlMby4NgPDkfJTyV3sOsvdo5pmsAb8TAcJVNor6gNT2h_0w=s176-c-k-c0x00ffffff-no-rj-mo"
-];
-const rareLogo = {
-  url: "https://yt3.googleusercontent.com/G9TX0i4yT5LDN2VZ7Z96DbsP5iRI5wR_u71yAwBY71rkDP84lWaJwZ342beeLfd3YbZEaHx3Ww=s160-c-k-c0x00ffffff-no-rj",
-  score: 10
-};
+let page = 0;
+let lastScript = '';
+let currentTitlesRaw = '';
 
-coinsDisplay.textContent = "Coins: " + coins;
-
-document.addEventListener("keydown", (e) => {
-  if (!gameRunning) return;
-  if (e.key === "ArrowLeft") playerX -= 20;
-  if (e.key === "ArrowRight") playerX += 20;
-  const maxX = gameArea.offsetWidth - player.offsetWidth;
-  playerX = Math.max(0, Math.min(playerX, maxX));
-  player.style.left = playerX + "px";
-});
-
-function spawnLogo() {
-  if (!gameRunning) return;
-  const logo = document.createElement("img");
-  const isRare = Math.random() < 0.1;
-  logo.src = isRare ? rareLogo.url : logoUrls[Math.floor(Math.random() * logoUrls.length)];
-  logo.className = "logo";
-  if (isRare) logo.classList.add("rare");
-  logo.dataset.points = isRare ? 10 : 3;
-  logo.style.left = Math.random() * (gameArea.offsetWidth - 40) + "px";
-  gameArea.appendChild(logo);
-  logos.push(logo);
+/* ================== HELPERS ================== */
+function showToast(text, ms=1600){
+  toast.textContent = text;
+  toast.classList.add('show');
+  setTimeout(()=> toast.classList.remove('show'), ms);
+}
+function setStatus(text){ statusChip.textContent = text; }
+function setBusy(b){
+  generateBtn.disabled = b;
+  nextBtn.disabled = b || (page===0);
+  hashtagsBtn.disabled = b;
+  clearBtn.disabled = b;
+  copyAllHashtagsBtn.disabled = b;
+  downloadBtn.disabled = b;
+  if(b) setStatus('Working...');
+  else setStatus('Ready');
 }
 
-function gameLoop() {
-  if (!gameRunning) return;
-  logos.forEach((logo, i) => {
-    logo.style.top = (logo.offsetTop + fallSpeed) + "px";
-    if (logo.offsetTop > gameArea.offsetHeight) {
-      logo.remove();
-      logos.splice(i, 1);
-      missed++;
-      missedDisplay.textContent = "Missed: " + missed;
-      if (missed >= 5) endGame();
-    }
-    if (isColliding(logo, player)) {
-      const pts = parseInt(logo.dataset.points);
-      score += pts;
-      coins += pts;
-      logo.remove();
-      logos.splice(i, 1);
-      updateDisplay();
-    }
+/* enforce ≤ MAX_CHARS (character count) with smart truncate */
+function enforceLimit(title){
+  const len = title.length;
+  if(len <= MAX_CHARS) return {ok:true, title, len};
+  // try to cut at last space within limit
+  const cut = title.slice(0, MAX_CHARS);
+  const lastSpace = cut.lastIndexOf(' ');
+  if(lastSpace > 6){
+    const t = cut.slice(0, lastSpace).trim() + '…';
+    return {ok:false, title:t, len:t.length};
+  }
+  const t = cut.trim() + '…';
+  return {ok:false, title:t, len:t.length};
+}
+
+function parseNumberedLines(text){
+  // returns array of titles (strip numbering)
+  const lines = text.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+  const res = [];
+  for(const ln of lines){
+    const t = ln.replace(/^\s*\d+\s*[\).:-]?\s*/, '').trim();
+    if(t) res.push(t);
+  }
+  return res;
+}
+
+/* ================== API CALL (chat/completions) ================== */
+async function callChat(systemPrompt, userPrompt){
+  const body = {
+    model: MODEL,
+    messages: [
+      {role: "system", content: systemPrompt},
+      {role: "user", content: userPrompt}
+    ],
+    max_tokens: 600,
+    temperature: 0.78
+  };
+  const resp = await fetch(API_URL, {
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'Authorization': `Bearer ${API_KEY}`
+    },
+    body: JSON.stringify(body)
   });
-  requestAnimationFrame(gameLoop);
-}
-
-function isColliding(a, b) {
-  return !(
-    a.offsetTop > b.offsetTop + b.offsetHeight ||
-    a.offsetTop + a.offsetHeight < b.offsetTop ||
-    a.offsetLeft > b.offsetLeft + b.offsetWidth ||
-    a.offsetLeft + a.offsetWidth < b.offsetLeft
-  );
-}
-
-function updateDisplay() {
-  scoreDisplay.textContent = "Score: " + score;
-  coinsDisplay.textContent = "Coins: " + coins;
-  livesDisplay.textContent = "Lives: " + lives;
-  localStorage.setItem("coins", coins);
-}
-
-function endGame() {
-  gameRunning = false;
-  finalScore.textContent = "Final Score: " + score;
-  gameOverScreen.style.display = "flex";
-}
-
-function restartGame() {
-  score = 0;
-  lives = 5;
-  missed = 0;
-  playerX = 200;
-  player.style.left = playerX + "px";
-  logos.forEach(logo => logo.remove());
-  logos = [];
-  gameRunning = true;
-  gameOverScreen.style.display = "none";
-  updateDisplay();
-  startGame();
-}
-
-function startGame() {
-  setInterval(spawnLogo, 1000);
-  setInterval(() => {
-    if (fallSpeed < 10) fallSpeed += 0.2;
-  }, 3000);
-  gameLoop();
-}
-startGame();
-
-function toggleShop() {
-  shop.style.display = shop.style.display === "block" ? "none" : "block";
-}
-
-document.querySelectorAll(".item").forEach(item => {
-  const buyBtn = item.querySelector(".buyBtn");
-  const skin = item.dataset.skin;
-  const price = parseInt(item.dataset.price);
-  const owned = JSON.parse(localStorage.getItem("ownedSkins") || "[]");
-  if (owned.includes(skin)) {
-    buyBtn.textContent = "Enable";
+  if(!resp.ok){
+    const txt = await resp.text().catch(()=>resp.statusText);
+    throw new Error(`${resp.status} ${resp.statusText} — ${txt}`);
   }
-  buyBtn.onclick = () => {
-    const owned = JSON.parse(localStorage.getItem("ownedSkins") || "[]");
-    if (!owned.includes(skin)) {
-      if (coins >= price) {
-        coins -= price;
-        owned.push(skin);
-        localStorage.setItem("ownedSkins", JSON.stringify(owned));
-        buyBtn.textContent = "Enable";
-        updateDisplay();
-      } else {
-        alert("Not enough coins");
-      }
+  return resp.json();
+}
+
+/* ================== TITLES ================== */
+async function generateTitles(reset=false){
+  const script = scriptEl.value.trim();
+  if(!script){
+    infoEl.textContent = 'Please paste a script first.';
+    infoEl.classList.add('muted');
+    return;
+  }
+  if(reset || lastScript !== script){ page = 0; lastScript = script; }
+  setBusy(true);
+  infoEl.textContent = '';
+  rawOut.classList.add('hidden');
+  titlesList.innerHTML = '';
+  try{
+    const sys = "You are a creative Hindi/English YouTube title writer.";
+    const user = `Generate exactly 10 short, catchy, clickable YouTube-style titles for the script below.
+Each title MUST be at most ${MAX_CHARS} characters long (include spaces & punctuation).
+Number them 1-10. Output only the numbered titles, nothing else.
+
+Script:
+${script}
+
+Set number: ${page+1}
+
+If any title exceeds ${MAX_CHARS} chars, try to shorten it but keep meaning.`;
+    const data = await callChat(sys, user);
+    const content = data.choices?.[0]?.message?.content || '';
+    currentTitlesRaw = content;
+    rawOut.textContent = content;
+    rawOut.classList.remove('hidden');
+
+    // parse and display
+    const parsed = parseNumberedLines(content).slice(0,10);
+    displayTitles(parsed);
+    page++;
+    setNumEl.textContent = page;
+    showToast('Titles ready');
+  }catch(err){
+    console.error(err);
+    infoEl.textContent = 'Error: ' + err.message;
+    showToast('Error: ' + (err.message||'failed'));
+    statusChip.textContent = 'Error';
+  }
+  setBusy(false);
+}
+
+function displayTitles(arr){
+  titlesList.innerHTML = '';
+  let valid = 0;
+  arr.forEach((t,i)=>{
+    const res = enforceLimit(t);
+    const li = document.createElement('li');
+    const left = document.createElement('div');
+    left.textContent = (i+1) + '. ' + res.title;
+    const right = document.createElement('div'); right.className = 'meta';
+    right.textContent = `${res.len}/${MAX_CHARS}` + (res.ok ? '' : ' • truncated');
+    li.appendChild(left); li.appendChild(right);
+    titlesList.appendChild(li);
+    if(res.ok) valid++;
+  });
+  countsEl.textContent = `${valid} valid / ${arr.length} total`;
+  infoEl.textContent = valid === arr.length ? 'All titles within limit.' : 'Some titles were truncated to fit.';
+  downloadBtn.disabled = false;
+}
+
+/* ================== HASHTAGS ================== */
+async function generateHashtags(){
+  const script = scriptEl.value.trim();
+  if(!script){
+    infoEl.textContent = 'Please paste a script first.';
+    return;
+  }
+  setBusy(true);
+  hashtagsMain.innerHTML = '';
+  hashtagsSmall.innerHTML = '';
+  try{
+    const sys = "You are a creative social media assistant who writes hashtags.";
+    const user = `Generate exactly 15 unique English hashtags relevant to the script below. Each should start with #, use no spaces (single words or camelCase). Output them in a single line separated by spaces after the label 'Hashtags:'.
+
+Then on the next labeled line 'Small:' output exactly 3 short hashtags (each under 8 characters) separated by spaces.
+
+Format exactly as:
+Hashtags:
+#tag1 #tag2 ...
+
+Small:
+#tagA #tagB #tagC
+
+Script:
+${script}
+`;
+    const data = await callChat(sys, user);
+    const content = data.choices?.[0]?.message?.content || '';
+    // split into Hashtags / Small
+    const parts = content.split(/Small:/i);
+    const mainRaw = (parts[0] || '').replace(/Hashtags:/i,'').trim();
+    const smallRaw = (parts[1]||'').trim();
+
+    // turn into arrays
+    const mainArr = mainRaw.split(/\s+/).filter(s=>s.startsWith('#')).slice(0,15);
+    const smallArr = smallRaw.split(/\s+/).filter(s=>s.startsWith('#')).slice(0,3);
+
+    // render main
+    if(mainArr.length){
+      mainArr.forEach(h=>{
+        const el = document.createElement('div');
+        el.className = 'hash';
+        el.textContent = h;
+        el.title = 'Tap to copy';
+        el.addEventListener('click', ()=> copySingleHash(el, h));
+        hashtagsMain.appendChild(el);
+      });
+      copyAllHashtagsBtn.disabled = false;
     } else {
-      localStorage.setItem("selectedSkin", skin);
-      updateSkin();
+      hashtagsMain.textContent = mainRaw || 'No hashtags returned';
     }
-  };
+
+    // render small
+    if(smallArr.length){
+      smallArr.forEach(h=>{
+        const el = document.createElement('div');
+        el.className = 'hash';
+        el.textContent = h;
+        el.title = 'Tap to copy';
+        el.addEventListener('click', ()=> copySingleHash(el, h));
+        hashtagsSmall.appendChild(el);
+      });
+    } else {
+      hashtagsSmall.textContent = smallRaw || '';
+    }
+
+    hashtagsMain.scrollIntoView({behavior:'smooth', block:'center'});
+    showToast('Hashtags ready');
+    infoEl.textContent = 'Tap any hashtag to copy.';
+  }catch(err){
+    console.error(err);
+    infoEl.textContent = 'Error generating hashtags: ' + err.message;
+    showToast('Hashtags error');
+  }
+  setBusy(false);
+}
+
+/* ================== COPY HELPERS ================== */
+async function copySingleHash(el, text){
+  try{
+    await navigator.clipboard.writeText(text);
+    // visual feedback
+    el.classList.add('copied');
+    showToast('Copied ' + text);
+    setTimeout(()=> el.classList.remove('copied'), 900);
+  }catch(e){
+    showToast('Copy failed');
+  }
+}
+
+copyAllHashtagsBtn.addEventListener('click', async ()=>{
+  const all = Array.from(hashtagsMain.querySelectorAll('.hash')).map(d=>d.textContent).join(' ');
+  if(!all) return showToast('No hashtags');
+  try{
+    await navigator.clipboard.writeText(all);
+    showToast('All hashtags copied');
+  }catch(e){ showToast('Copy failed'); }
 });
 
-function updateSkin() {
-  const skin = localStorage.getItem("selectedSkin");
-  const skinMap = {
-      "Default": "https://cdn-icons-png.flaticon.com/512/149/149071.png", // 👈 नया default जोड़ा गया
-    "Red": "https://cdn-icons-png.flaticon.com/512/892/892458.png",
-    "Box": "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
-    "Speed": "https://cdn-icons-png.flaticon.com/512/616/616408.png",
-    "Rare": "https://cdn-icons-png.flaticon.com/512/1046/1046751.png"
-  };
-  if (skinMap[skin]) {
-    player.style.backgroundImage = `url(${skinMap[skin]})`;
-  } else {
-    player.style.backgroundImage = "none";
-  }
-}
-if (!localStorage.getItem("selectedSkin")) {
-  localStorage.setItem("selectedSkin", "Default");
-}
-updateSkin();
+/* ================== DOWNLOAD ================== */
+downloadBtn.addEventListener('click', ()=>{
+  const titles = Array.from(titlesList.querySelectorAll('li div:first-child')).map(d=>d.textContent).join('\n');
+  const hashtags = Array.from(hashtagsMain.querySelectorAll('.hash')).map(d=>d.textContent).join(' ');
+  const small = Array.from(hashtagsSmall.querySelectorAll('.hash')).map(d=>d.textContent).join(' ');
+  const txt = `Titles:\n${titles}\n\nHashtags:\n${hashtags}\n\nSmall:\n${small}`;
+  const blob = new Blob([txt], {type:'text/plain;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'titles_hashtags.txt'; document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+});
 
+/* ================== EVENTS ================== */
+generateBtn.addEventListener('click', ()=> generateTitles(true));
+nextBtn.addEventListener('click', ()=> generateTitles(false));
+hashtagsBtn.addEventListener('click', generateHashtags);
+clearBtn.addEventListener('click', ()=>{
+  scriptEl.value = '';
+  titlesList.innerHTML = ''; hashtagsMain.innerHTML=''; hashtagsSmall.innerHTML=''; rawOut.textContent=''; rawOut.classList.add('hidden');
+  setNumEl.textContent = '0'; page = 0; lastScript = ''; countsEl.textContent = '0 valid / 0 total';
+  infoEl.textContent = 'Cleared'; copyAllHashtagsBtn.disabled = true; downloadBtn.disabled = true;
+});
+
+/* small UX: enable download when there's content */
+const mo = new MutationObserver(()=> {
+  downloadBtn.disabled = !(titlesList.children.length || hashtagsMain.children.length);
+});
+mo.observe(titlesList, {childList:true});
+mo.observe(hashtagsMain, {childList:true});
 </script>
 </body>
 </html>
