@@ -1,645 +1,445 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="hi">
 <head>
-  <meta charset="UTF-8" />
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>!! SYSTEM BREACH !!</title>
+<style>
+  /* DISCLAIMER: यह सिर्फ़ एक प्रैंक पेज है — कोई भी असल सुरक्षा जोखिम या नेटवर्क एक्टिविटी नहीं करता। */
+  :root {
+    --bg: #000;
+    --neon: #00ff99;
+    --danger: #ff0044;
+    --muted: rgba(255,255,255,0.06);
+  }
+  html,body{height:100%;margin:0;background:#000;overflow:hidden;font-family: "Courier New", monospace;color:var(--neon)}
+  .matrix {
+    position:fixed;inset:0;background:linear-gradient(180deg, rgba(0,0,0,0.6), rgba(0,0,0,0.9));
+    z-index:0;pointer-events:none;
+  }
+  canvas#matrixCanvas{width:100%;height:100%;display:block;filter:blur(0.2px) saturate(1.2)}
+  .overlay {position:fixed;inset:0;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:28px;gap:12px}
+  .banner {
+    width:100%;max-width:1100px;background:linear-gradient(90deg,#22000066,#330000aa);border:2px solid rgba(255,0,68,0.15);
+    padding:12px 18px;border-radius:10px;color:#fff;display:flex;align-items:center;gap:12px;box-shadow:0 10px 60px rgba(255,0,68,0.08);
+    backdrop-filter: blur(2px);
+  }
+  .banner .big {font-size:20px;font-weight:800;color:var(--danger);letter-spacing:1px}
+  .banner .small {color:#ffd6e0;font-size:12px;margin-left:auto}
+  .glass {
+    width:100%;max-width:1100px;height:58vh;background:rgba(0,0,0,0.5);border-radius:10px;padding:16px;box-sizing:border-box;overflow:hidden;
+    border:1px solid rgba(255,255,255,0.03);
+    display:flex;gap:12px;
+  }
+  .left, .right {flex:1;min-width:0}
+  .terminal {
+    background:linear-gradient(180deg, rgba(0,0,0,0.45), rgba(0,0,0,0.35));
+    height:100%;padding:12px;border-radius:8px;overflow:hidden;box-shadow: inset 0 0 40px rgba(0,0,0,0.6);
+    border:1px solid rgba(0,255,153,0.04);
+  }
+  .log {height:100%;overflow:auto;font-size:13px;line-height:1.4;color:var(--neon);padding-right:6px;white-space:pre-wrap}
+  .right .panel {display:flex;flex-direction:column;gap:12px;height:100%}
+  .progress {
+    background:rgba(255,255,255,0.03);
+    height:22px;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,0.03)
+  }
+  .bar {height:100%;width:0;background:linear-gradient(90deg,var(--neon),#00d9ff);box-shadow:0 6px 30px rgba(0,255,153,0.07)}
+  .fake-files {flex:1;overflow:auto;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);padding:8px;border-radius:6px;border:1px dashed rgba(255,255,255,0.02);font-size:13px}
+  .file {padding:6px 8px;border-radius:6px;margin-bottom:6px;background:rgba(0,0,0,0.25);display:flex;justify-content:space-between;align-items:center}
+  .file .meta {font-size:12px;color:#a6f3d3}
+  .countdown {
+    display:flex;gap:8px;align-items:center;font-weight:700;color:var(--danger);font-size:18px;
+  }
+  .controls {display:flex;gap:8px;justify-content:flex-end}
+  .btn {
+    background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 12px;border-radius:8px;color:#fff;cursor:pointer
+  }
+  .btn.stop {background:var(--danger);border-color:rgba(255,0,68,0.2);box-shadow:0 8px 40px rgba(255,0,68,0.14)}
+  .glitch {
+    color:#fff;
+    font-size:40px;
+    text-transform:uppercase;
+    font-weight:900;
+    position:relative;
+    letter-spacing:2px;
+    margin-top:8px;
+  }
+  .glitch::before, .glitch::after{
+    content:attr(data-text);position:absolute;left:0;top:0;opacity:0.7;
+    clip-path:polygon(0 0, 100% 0, 100% 33%, 0 33%);
+  }
+  .glitch::before{transform:translate(-2px,-2px);color:#ff0044;mix-blend-mode:screen;animation:gl1 2s infinite linear}
+  .glitch::after{transform:translate(2px,2px);color:#00ffcc;mix-blend-mode:screen;animation:gl2 3s infinite linear}
+  @keyframes gl1{0%{opacity:0.6}50%{opacity:0.2}100%{opacity:0.6}}
+  @keyframes gl2{0%{opacity:0.6}50%{opacity:0.1}100%{opacity:0.6}}
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FactsBoltx | Video Information</title>
-  <link rel="stylesheet" href="home.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  /* flicker overlay */
+  .flicker {position:fixed;inset:0;pointer-events:none;opacity:0;z-index:20;background:linear-gradient(90deg, rgba(255,0,68,0.02), rgba(0,0,0,0));mix-blend-mode:screen}
+  .redflash {position:fixed;inset:0;background:rgba(255,0,68,0.03);z-index:18;opacity:0;pointer-events:none}
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  /* top-right stop */
+  .top-right {position:fixed;right:14px;top:14px;z-index:30;display:flex;gap:8px}
+  .status-pill {background:rgba(0,0,0,0.6);padding:8px 10px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);color:#fff;font-size:13px}
+  .stop-hint{font-size:12px;color:#ffdede;margin-left:8px}
 
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyDUefeJbHKIAs-l3zvFlGaas6VD63vv4kI",
-      authDomain: "inspire4ever-c60ad.firebaseapp.com",
-      projectId: "inspire4ever-c60ad",
-      storageBucket: "inspire4ever-c60ad.appspot.com",
-      messagingSenderId: "125014633127",
-      appId: "1:125014633127:web:d29e4c37628ab637f40982",
-      measurementId: "G-PNHJC0LRVQ",
-      databaseURL: "https://inspire4ever-c60ad-default-rtdb.firebaseio.com/"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-  </script>
+  /* small screens */
+  @media(max-width:700px){
+    .glass {flex-direction:column;height:78vh;padding:10px}
+    .contentWrap{padding:10px}
+    .banner .small{display:none}
+    .glitch{font-size:26px}
+    
+  }
+  
+</style>
 </head>
 <body>
 
-   <div class="top-bar">
-    <h2 id="subscriberCount"><i class="fa-solid fa-people-group"></i> Subscribers: ...</h2>
-    
-    <button onclick="verifyAdminCode()" id="adminCodeBtn" class="upload-btn locked">
-  <i class="fa-solid fa-user-tie"></i> Admin Login
-  <i class="fa-solid fa-lock lock-icon"></i>
-</button>
+<div class="matrix"><canvas id="matrixCanvas"></canvas></div>
 
-    <button id="showFormBtn"  style="display:none"class="upload-btn"><i class="fa-solid fa-upload" ></i> Upload Video</button>
-   <a href="space.html" class="btn puzzle-btn">
-  <i class="fa-solid fa-robot"></i> AI GENERATOR 
-</a>
-
-
-<a href="chart.html" class="btn puzzle-btn">
-  <i class="fa-solid fa-chart-simple"></i> View Analytics
-</a>
-
-<div id="coinBox" style="
-  display: inline-flex;
-  align-items: center;
-  background-color: #2c2c2c;
-  color: #ffd700;
-  border-radius: 20px;
-  padding: 6px 14px;
-  font-size: 17px;
-  font-weight: bold;
-  font-family: 'JetBrains Mono', monospace;
-  box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
-  margin: 10px;
-">
-  <i class="fa-solid fa-coins" style="margin-right: 8px;"></i>
-  <span id="coinCount">0</span> 
-</div>
-
-
+<div class="overlay">
+  <div class="banner" role="status" aria-live="polite">
+    <div class="big">!! SYSTEM BREACH DETECTED !!</div>
+    <div class="small">MULTIPLE CONNECTIONS OPEN — DATA STREAMING</div>
+    <div style="margin-left:auto" class="countdown">Exfil in: <span id="cd">00:20</span></div>
   </div>
 
- <div id="uploadContainer" style="display: none;">
-  <div class="upload-form">
-    <input id="title" placeholder="Video Title" />
-    <input id="videoId" placeholder="YouTube Video ID" />
-    <textarea id="script" placeholder="Video Script..."></textarea>
-    <input id="hashtags" placeholder="#hashtags" />
-  
-    <div class="button-group">
-      <button onclick="uploadVideo()">Upload</button>
-      <button type="button" onclick="hideUploadForm()" class="btn red">Cancel</button>
-    </div>
-  </div>
-</div>
-
-
-
-  <div class="container">
-   
-
-    <div class="custom-dropdown">
-  <div class="selected" onclick="toggleDropdown()">🎬 Select Video</div>
-  <div class="options" id="dropdownOptions"></div>
-</div>
-
-
-    <a id="videoLink" href="#" target="_blank">
-      <img id="thumbnail" src="" alt="Video Thumbnail" class="video-thumb" />
-    </a>
-<div class="watch-now-wrapper">
-  <a id="watchNowBtn" class="btn blue" target="_blank">🎬 Watch Now on YouTube</a>
-</div>
-
-    <div class="info-bar">
-      <div id="videoStats">
-        <span id="videoViews"><i class="fa-solid fa-eye"></i>  --</span>
-        <span id="videoLikes"><i class="fa-solid fa-thumbs-up"></i>  --</span>
-        <span id="videoDate"><i class="fa-solid fa-calendar"></i>  --</span>
+  <div class="glass" role="region" aria-label="Fake hacking interface">
+    <div class="left">
+      <div class="terminal">
+        <div class="log" id="log" aria-atomic="false"></div>
       </div>
     </div>
 
-<textarea id="scriptArea" rows="6" placeholder="Video Script..." readonly></textarea>
-<textarea id="hashtagArea" rows="3" placeholder="#hashtags" readonly></textarea>
+    <div class="right">
+      <div class="panel">
+        <div>
+          <div class="glitch" data-text="BREACHED">BREACHED</div>
+        </div>
 
-<div class="share-buttons">
-  <a href="#" id="whatsappShare" target="_blank"><i class="fa-brands fa-whatsapp"></i> Share</a>
-  <a href="#" id="facebookShare" target="_blank"><i class="fa-brands fa-facebook"></i> Share</a>
-  <a href="#" id="twitterShare" target="_blank"><i class="fa-brands fa-twitter"></i> Share</a>
-</div>
-<div style="height: 20px;"></div>
-    <div class="button-group">
-      <button onclick="copyScript()" class="btn blue"><i class="fa-solid fa-copy"></i> Copy Script</button>
-      <button onclick="updateVideo()" id="updateBtn" class="btn green" disabled><i class="fa-solid fa-pen-nib"></i> Update</button>
-      <button onclick="deleteSelected()" id="deleteBtn" class="btn red" disabled><i class="fa-solid fa-trash"></i> Delete</button>
+        <div>
+          <div style="font-size:13px;color:#ffd6e0;margin-bottom:6px">Transfer Progress</div>
+          <div class="progress" aria-hidden="true"><div id="bar" class="bar" role="progressbar" style="width:0%"></div></div>
+        </div>
+
+        <div class="fake-files" id="files" aria-live="polite"></div>
+
+        <div style="display:flex;align-items:center;gap:12px;justify-content:space-between">
+          <div style="font-size:12px;color:#ffb6c1">Remote: 45.77.12.198:22</div>
+          <div class="controls">
+            <button class="btn" id="panicBtn">PANIC MODE</button>
+            <button class="btn stop" id="stopBtn">HACKED</button>
+          </div>
+          <div id="hackFlash" style="
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%, -50%);
+  font-size:50px;
+  font-weight:bold;
+  color:red;
+  text-shadow:0 0 20px red;
+  opacity:0;
+  transition:opacity 0.2s;
+  pointer-events:none;
+  z-index:9999;
+">HACKED</div>
+
+        </div>
+      </div>
     </div>
   </div>
-  
-<script>
-  // Initialize coins from localStorage
-  let coins = parseInt(localStorage.getItem("userCoins") || "0");
-  document.addEventListener("DOMContentLoaded", () => {
-    updateCoinUI();
-  });
-
-  function updateCoinUI() {
-    document.getElementById("coinCount").textContent = coins;
-  }
-
-  function addCoins(amount) {
-    coins += amount;
-    localStorage.setItem("userCoins", coins);
-    updateCoinUI();
-    Swal.fire({
-      icon: "success",
-      title: `🎉 You've earned ${amount} coins!`,
-      showConfirmButton: false,
-      timer: 2000
-    });
-  }
-</script>
-<script>
-  document.getElementById("whatsappShare").addEventListener("click", () => {
-    addCoins(20);
-  });
-
-  document.getElementById("facebookShare").addEventListener("click", () => {
-    addCoins(20);
-  });
-
-  document.getElementById("twitterShare").addEventListener("click", () => {
-    addCoins(20);
-  });
-</script>
-
-  <script>
-    const API_KEY = "AIzaSyAa5mJThKeXqIbcB_pBIE4jOlTw04Ej2fU";
-    const ADMIN_CODE = "deepak95";
-    let isAdmin = false;
-    let currentKey = null;
-    let allVideos = [];
-
-    const titleInput = document.getElementById("title");
-    const videoIdInput = document.getElementById("videoId");
-    const scriptInput = document.getElementById("script");
-    const hashtagsInput = document.getElementById("hashtags");
-    const thumbnail = document.getElementById("thumbnail");
-    const scriptArea = document.getElementById("scriptArea");
-    const hashtagArea = document.getElementById("hashtagArea");
-    const showFormBtn = document.getElementById("showFormBtn");
-   const uploadContainer = document.getElementById("uploadContainer");
-
-    const adminCodeBtn = document.getElementById("adminCodeBtn");
-    const updateBtn = document.getElementById("updateBtn");
-    const deleteBtn = document.getElementById("deleteBtn");
-    const videoDropdown = document.getElementById("videoDropdown");
-    const subscriberCount = document.getElementById("subscriberCount");
-    const videoLink = document.getElementById("videoLink");
-    const videoViews = document.getElementById("videoViews");
-    const videoLikes = document.getElementById("videoLikes");
-    const videoDate = document.getElementById("videoDate");
-
-   function verifyAdminCode() {
-  Swal.fire({
-    title: '🔐 Admin Access',
-    html: `
-      <p style="margin-bottom: 10px;">Choose how you want to access admin mode:</p>
-      <button id="loginBtn" class="swal2-confirm swal2-styled" style="background-color:#3b82f6; margin-bottom: 10px; width: 100%;">
-        🔑 Login with Password
-      </button><br>
-      <button id="buyBtn" class="swal2-confirm swal2-styled" style="background-color:#22c55e; width: 100%;" ${coins < 1000 ? "disabled" : ""}>
-         Purchase Admin Mode(1000 coins)
-      </button>
-    `,
-    showConfirmButton: false,
-    background: '#1e1e1e',
-    color: '#ffffff',
-    didOpen: () => {
-      const loginBtn = document.getElementById('loginBtn');
-      const buyBtn = document.getElementById('buyBtn');
-
-      // 🔑 Login with Password
-      loginBtn.addEventListener('click', () => {
-        Swal.close();
-        showPasswordPrompt();
-      });
-
-      // 🪙 Buy Admin Access
-      buyBtn.addEventListener('click', () => {
-        if (coins >= 1000) {
-          coins -= 1000;
-          localStorage.setItem("userCoins", coins);
-          updateCoinUI();
-          isAdmin = true;
-          localStorage.setItem("admin", "true");
-          showAdminControls();
-          Swal.fire({
-            title: '✅ Success!',
-            text: 'You are now an admin.',
-            icon: 'success',
-            background: '#1e1e1e',
-            color: '#ffffff',
-            width: "280px"
-          });
-        }
-      });
-    }
-  });
-}
-function showPasswordPrompt() {
-  Swal.fire({
-    title: '🔐 Enter Admin Password',
-    width: '280px',
-    background: '#1e1e1e',
-    color: '#ffffff',
-    input: 'password',
-    inputLabel: 'Admin Password',
-    inputPlaceholder: '••••••••',
-    inputAttributes: {
-      autocapitalize: 'off',
-      autocorrect: 'off'
-    },
-    showCancelButton: true,
-    confirmButtonText: 'Login',
-    preConfirm: (code) => {
-      if (!code) {
-        Swal.showValidationMessage('⚠️ Please enter password');
-        return false;
-      }
-      return code;
-    }
-  }).then(result => {
-    if (result.isConfirmed) {
-      const code = result.value;
-      if (code === ADMIN_CODE) {
-        isAdmin = true;
-        localStorage.setItem("admin", "true");
-        showAdminControls();
-        Swal.fire({
-          title: '✅ Success!',
-          text: 'Admin access granted.',
-          icon: 'success',
-          background: '#1e1e1e',
-          color: '#ffffff',
-          width: '280px'
-        });
-      } else {
-        Swal.fire({
-          title: '❌ Failed',
-          text: 'Invalid admin password.',
-          icon: 'error',
-          background: '#1e1e1e',
-          color: '#ffffff',
-          width: '280px'
-        });
-      }
-    }
-  });
-}
-
-
-function toggleDropdown() {
-  const selected = document.querySelector(".selected");
-  const options = document.getElementById("dropdownOptions");
-
-  if (options.style.display === "block") {
-    options.style.display = "none";
-    selected.classList.remove("open");
-  } else {
-    options.style.display = "block";
-    selected.classList.add("open");
-  }
-}
-function updateShareLinks(videoId, title) {
-  const url = `https://www.youtube.com/watch?v=${videoId}`;
-  document.getElementById("whatsappShare").href = `https://wa.me/?text=${encodeURIComponent(title + " 🔗 " + url)}`;
-  document.getElementById("facebookShare").href = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
-  document.getElementById("twitterShare").href = `https://twitter.com/intent/tweet?url=${url}&text=${encodeURIComponent(title)}`;
-  
-}
-
-
-function selectVideo(video, key, shouldToggle = true) {
-  document.querySelector(".selected").textContent = "🎬 " + video.title;
-
-  if (shouldToggle) {
-    toggleDropdown();  // ✅ सिर्फ तभी toggle होगा जब चाहिए
-  } else {
-    // 🚫 dropdown बंद कर दो अगर टॉगल नहीं करना है
-    const options = document.getElementById("dropdownOptions");
-    options.style.display = "none";
-    document.querySelector(".selected").classList.remove("open");
-  }
-
-  currentKey = key;
-  populateDetails(video);
-}
-
-
-// This replaces <select> render
-function renderDropdown(videos) {
-  const optionsContainer = document.getElementById("dropdownOptions");
-  optionsContainer.innerHTML = "";
-  videos.forEach(video => {
-    const div = document.createElement("div");
-    div.textContent = video.title;
-    div.onclick = () => selectVideo(video, video.key);
-    optionsContainer.appendChild(div);
-  });
-}
-
-
-    function showAdminControls() {
-      showFormBtn.style.display = "inline-block";
-      updateBtn.disabled = false;
-      deleteBtn.disabled = false;
-      adminCodeBtn.style.display = "none";
-    }
-
-    showFormBtn.addEventListener("click", () => {
-  uploadContainer.style.display = "block";
-  showFormBtn.style.display = "none";
-});
-
-function uploadVideo() {
-  const title = titleInput.value.trim();
-  const videoId = videoIdInput.value.trim();
-  const script = scriptInput.value.trim();
-  const hashtags = hashtagsInput.value.trim();
-
-  if (!title || !videoId || !script || !hashtags) {
-    Swal.fire({
-      icon: "warning",
-      title: "⚠️ Missing Information",
-      text: "Please fill in all the fields before uploading.",
-      background: "#1e1e1e",
-      color: "#ffffff",
-       width: "280px"  // ⬅️ Popup width छोटा किया
-    });
-    return;
-  }
-
-  const newVideo = {
-    title,
-    videoId,
-    script,
-    hashtags,
-    date: new Date().toISOString()
-  };
-
-  db.ref("videos").push(newVideo).then(() => {
-    Swal.fire({
-      icon: "success",
-      title: "✅ Uploaded!",
-      text: "Video has been successfully uploaded.",
-      width: "280px" ,
-      background: "#1e1e1e",
-      color: "#ffffff"
-    });
-    loadVideos(); // Refresh list
-    clearForm();  // Clear form fields
-  });
-}
-
-function updateVideo() {
-  if (!isAdmin) {
-    Swal.fire({
-      icon: "error",
-      title: "Access Denied",
-      text: "Admin access required to update.",
-      background: "#1e1e1e",
-      width: "280px" ,
-      color: "#ffffff"
-    });
-    return;
-  }
-
-  const updatedData = {
-    title: titleInput.value.trim(),
-    videoId: videoIdInput.value.trim(),
-    script: scriptInput.value.trim(),
-    hashtags: hashtagsInput.value.trim(),
-    date: new Date().toISOString()
-  };
-
-  db.ref("videos/" + currentKey).update(updatedData).then(() => {
-    Swal.fire({
-      icon: "success",
-      title: "✅ Updated",
-      text: "Video has been successfully updated!",
-      background: "#1e1e1e",
-      color: "#ffffff",
-      width: "280px" 
-    });
-    loadVideos(updatedData.videoId);
-  });
-}
-
-
-   function deleteSelected() {
-  if (!currentKey) {
-    Swal.fire({
-      icon: "warning",
-      title: "⚠️ No Video Selected",
-      text: "Please select a video to delete.",
-      background: "#1e1e1e",
-      color: "#ffffff",
-      width: "280px" 
-    });
-    return;
-  }
-
-  Swal.fire({
-    title: "⚠️ Are you sure?",
-    text: "This action cannot be undone.",
-    icon: "warning",
-    width: "280px" ,
-    showCancelButton: true,
-    confirmButtonColor: "#e50914",
-    cancelButtonColor: "#555",
-    confirmButtonText: "Yes, delete it!",
-    background: "#1e1e1e",
-    color: "#ffffff"
-  }).then((result) => {
-    if (result.isConfirmed) {
-      db.ref("videos/" + currentKey).remove().then(() => {
-        Swal.fire({
-          title: "✅ Deleted",
-          text: "Video has been removed.",
-          icon: "success",
-          background: "#1e1e1e",
-          width: "280px" ,
-          color: "#ffffff"
-        });
-        resetDisplay();
-        loadVideos();
-      }).catch((error) => {
-        Swal.fire({
-          icon: "error",
-          title: "❌ Deletion Failed",
-          text: error.message,
-          background: "#1e1e1e",
-          width: "280px" ,
-          color: "#ffffff"
-        });
-      });
-    }
-  });
-}
-
-
-   function copyScript() {
-  const text = scriptArea.value; // ✅ सिर्फ script लिया गया है
-  
-  navigator.clipboard.writeText(text).then(() => {
-    Swal.fire({
-      icon: "success",
-      title: "📋 Script Copied!",
-      text: "Only the script has been copied to clipboard.",
-      background: "#1e1e1e",
-      color: "#ffffff",
-      timer: 1500,
-      width: "280px" ,
-      showConfirmButton: false
-    });
-  }).catch((err) => {
-    Swal.fire({
-      icon: "error",
-      title: "❌ Copy Failed",
-      text: "Could not copy the script.",
-      background: "#1e1e1e",
-      width: "280px" ,
-      color: "#ffffff"
-    });
-  });
-}
-
-
-
-    function resetUploadForm() {
-      titleInput.value = "";
-      videoIdInput.value = "";
-      scriptInput.value = "";
-      hashtagsInput.value = "";
-      uploadContainer.style.display = "none";
-  showFormBtn.style.display = "inline-block";
-    }
-function hideUploadForm() {
-  uploadContainer.style.display = "none";
-  showFormBtn.style.display = "inline-block";
-  // Optional: fields भी साफ कर दो
-  resetUploadForm();
-}
-   function resetDisplay() {
-  thumbnail.src = "";
-  scriptArea.value = "";
-  hashtagArea.value = "";
-  currentKey = null;
-
-  // 🎬 Custom dropdown को "Select Video" पर रीसेट करो
-  document.querySelector(".selected").textContent = "🎬 Select Video";
-
-  // बाकी सब को भी रीसेट करो
-  videoLink.href = "#";
-  videoViews.innerHTML = '<i class="fa-solid fa-eye"></i>  --';
-  videoLikes.innerHTML = '<i class="fa-solid fa-thumbs-up"></i>  --';
-  videoDate.innerHTML = '<i class="fa-solid fa-calendar-days"></i>  --';
-  subscriberCount.innerHTML = '<i class="fa-solid fa-people-group"></i> Subscribers: --';
-}
-
-
-  async function loadYouTubeData(videoId) {
-  showLoader(); // 👈 Start loader
-  try {
-    const videoRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&id=${videoId}&key=${API_KEY}`);
-    const videoData = await videoRes.json();
-    const video = videoData.items[0];
-
-    if (video) {
-      videoViews.innerHTML = `<i class="fa-solid fa-eye"></i> : ${video.statistics.viewCount}`;
-      videoLikes.innerHTML = `<i class="fa-solid fa-thumbs-up"></i> : ${video.statistics.likeCount}`;
-      videoDate.innerHTML = `<i class="fa-solid fa-calendar-days"></i> : ${video.snippet.publishedAt.split("T")[0]}`;
-
-      const channelId = video.snippet.channelId;
-      const channelRes = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${channelId}&key=${API_KEY}`);
-      const channelData = await channelRes.json();
-      const channel = channelData.items[0];
-      if (channel) {
-  subscriberCount.innerHTML = `<i class="fa-solid fa-people-group"></i> Subscribers: ${channel.statistics.subscriberCount}`;
-}
-
-    }
-  } catch (err) {
-    console.error("YouTube API Error", err);
-    videoViews.innerHTML = '<i class="fa-solid fa-eye"></i> : --';
-    videoLikes.innerHTML = '<i class="fa-solid fa-thumbs-up"></i> : --';
-    videoDate.innerHTML = '<i class="fa-solid fa-calendar-days"></i> : --';
-    subscriberCount.innerHTML = '<i class="fa-solid fa-user-group"></i> Subscribers: --';
-  }
-  hideLoader(); // 👈 End loader
-}
-
-
-  function loadVideos(selectedId = null) {
-  showLoader();
-  db.ref("videos").once("value", snap => {
-    allVideos = [];
-    snap.forEach(child => {
-      const video = child.val();
-      video.key = child.key;
-      allVideos.push(video);
-    });
-
-    allVideos.sort((a, b) => new Date(b.date) - new Date(a.date));
-    renderDropdown(allVideos); // 👈 custom dropdown render
-
-    if (allVideos.length > 0) {
-      const firstVideo = allVideos[0];
-      selectVideo(firstVideo, firstVideo.key, false); // 🚫 dropdown को ना खोलो
-
-    }
-
-    hideLoader();
-  });
-}
-
-
-    function onVideoSelect() {
-      const key = videoDropdown.value;
-      const video = allVideos.find(v => v.key === key);
-      if (!video) return;
-      currentKey = key;
-      populateDetails(video);
-    }
-
-   function populateDetails(video) {
-  const vid = video.videoId;
-  updateShareLinks(video.videoId, video.title);
-
-  currentKey = video.key; // 👈 यह जोड़ो: thumbnail वाली वीडियो की key set करो
-
-  thumbnail.src = `https://img.youtube.com/vi/${vid}/hqdefault.jpg`;
-  videoLink.href = `https://www.youtube.com/watch?v=${vid}`;
-  scriptArea.value = video.script;
-  hashtagArea.value = video.hashtags;
-  titleInput.value = video.title;
-  videoIdInput.value = video.videoId;
-  scriptInput.value = video.script;
-  hashtagsInput.value = video.hashtags;
-    document.getElementById("watchNowBtn").href = `https://www.youtube.com/watch?v=${vid}`;
-  loadYouTubeData(vid);
-}
-function showLoader() {
-  document.getElementById("loadingOverlay").style.display = "flex";
-  document.body.classList.add("loading");
-}
-
-function hideLoader() {
-  document.getElementById("loadingOverlay").style.display = "none";
-  document.body.classList.remove("loading");
-}
-
-    window.onload = () => {
-      loadVideos();
-      if (localStorage.getItem("admin") === "true") {
-        isAdmin = true;
-        showAdminControls();
-      }
-    };
-  </script>
-</body>
-<div id="loadingOverlay">
-  <div class="loader"></div>
 </div>
 
+<div class="flicker" id="flick"></div>
+<div class="redflash" id="redf"></div>
+
+<div class="top-right" role="navigation">
+  <div class="status-pill" id="status">INFILTRATING</div>
+  <div class="status-pill stop-hint">Press ESC or STOP HACKED</div>
+</div>
+
+<script>
+/*
+  SAFE PRANK: यह पेज केवल client-side विजुअल इफेक्ट है।
+  कोई भी असली नेटवर्क request, फाइल reading/writing या खराब कोड यहाँ नहीं किया गया है।
+  अगर तुम्हें इसे साइट पर नहीं रखना तो लोकल में ही चलाओ।
+*/
+
+const logEl = document.getElementById('log');
+const barEl = document.getElementById('bar');
+const filesEl = document.getElementById('files');
+const cdEl = document.getElementById('cd');
+const flick = document.getElementById('flick');
+const redf = document.getElementById('redf');
+const status = document.getElementById('status');
+
+let running = true;
+let percent = 0;
+let countdown = 20; // seconds
+let panic = false;
+
+// Sample fake filenames (harmless)
+const sampleFiles = [
+  "users.db - 3.2GB",
+  "wallets.csv - 24MB",
+  "passwords.txt - 12KB",
+  "photos.zip - 1.1GB",
+  "server_config.conf - 2KB",
+  "contacts.vcf - 42KB",
+  "secrets.enc - 512MB",
+  "backup_2024.tar - 4.8GB",
+  "notes_private.docx - 110KB",
+  "transactions.log - 870MB",
+  "employees.xls - 20MB",
+  "tokens.json - 2KB",
+  "aws_keys.txt - 1KB"
+];
+
+// UTIL: random IP
+function randIP(){
+  return `${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}`;
+}
+
+// UTIL: append to terminal
+function appendLog(txt, cls){
+  const time = new Date().toLocaleTimeString();
+  logEl.innerText += `[${time}] ${txt}\n`;
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+// Typing effect for important lines
+async function typeLine(line, delay=20){
+  for(let i=0;i<line.length;i++){
+    logEl.innerText += line[i];
+    logEl.scrollTop = logEl.scrollHeight;
+    await new Promise(r=>setTimeout(r, delay));
+  }
+  logEl.innerText += '\n';
+}
+// हर 1 सेकंड में HACKED फ्लैश
+setInterval(() => {
+  if (running) {
+    appendLog("!!! HACKED !!!");
+    redFlash(1);
+  }
+}, 1000);
+const hackFlash = document.getElementById('hackFlash');
+
+setInterval(() => {
+  if (running) {
+    hackFlash.style.opacity = 1;
+    setTimeout(() => hackFlash.style.opacity = 0, 200);
+  }
+}, 700);
+
+// Simulate attack steps
+async function runSequence(){
+  appendLog("INITIATING REMOTE HANDSHAKE -> " + randIP() + ":22");
+  await sleep(400);
+  await typeLine("AUTH: Brute forcing... (simulated)");
+  await sleep(300);
+  appendLog("AUTH SUCCESS -> root@"+randIP());
+  await sleep(300);
+  await typeLine("ELEVATING PRIVILEGES...");
+  await sleep(400);
+  appendLog("PRIVILEGE: root");
+  await sleep(300);
+  appendLog("MOUNT /var/lib -> OK");
+  await sleep(300);
+  startFileStream();
+}
+
+function sleep(ms){ return new Promise(r=>setTimeout(r,ms)) }
+
+// Create fake file list and stream
+function startFileStream(){
+  // show files (rotate)
+  filesEl.innerHTML = '';
+  for(let i=0;i<6;i++){
+    const d = document.createElement('div');
+    d.className = 'file';
+    d.innerHTML = `<div>${sampleFiles[(i)%sampleFiles.length]}</div><div class="meta">${(Math.random()*100).toFixed(1)} MB/s</div>`;
+    filesEl.appendChild(d);
+  }
+  // start progress
+  const pInterval = setInterval(()=>{
+    if(!running) { clearInterval(pInterval); return; }
+    if(panic){ percent += Math.random()*10 + 20 } else { percent += Math.random()*2 + 1.2 }
+    if(percent>100) percent = 100;
+    barEl.style.width = percent + '%';
+    // animate file speeds and swap files
+    if(Math.random() < 0.3){
+      const idx = Math.floor(Math.random()*sampleFiles.length);
+      const el = filesEl.children[Math.floor(Math.random()*filesEl.children.length)];
+      el.innerHTML = `<div>${sampleFiles[idx]}</div><div class="meta">${(Math.random()*150).toFixed(1)} MB/s</div>`;
+    }
+    // update terminal occasionally
+    if(Math.random() < 0.25) appendLog("STREAM -> " + sampleFiles[Math.floor(Math.random()*sampleFiles.length)] + " -> " + randIP());
+    if(percent>=100){
+      appendLog("TRANSFER COMPLETE. INITIATING CLEANUP...");
+      status.innerText = "EXFIL COMPLETE";
+      redFlash(3);
+      clearInterval(pInterval);
+    }
+  }, 700);
+
+  // countdown
+  const cInterval = setInterval(()=>{
+    if(!running){ clearInterval(cInterval); return; }
+    countdown--;
+    cdEl.innerText = "00:" + String(countdown).padStart(2,'0');
+    if(countdown <= 0){
+      appendLog("AUTOMATED EXFILTRATION TRIGGERED.");
+      status.innerText = "EXFIL TRIGGERED";
+      panic = true;
+      clearInterval(cInterval);
+    }
+  }, 1000);
+}
+
+// visual red flash
+function redFlash(times=2){
+  let t=0;
+  const id = setInterval(()=>{
+    redf.style.opacity = 0.06 + Math.random()*0.12;
+    setTimeout(()=> redf.style.opacity = 0, 120);
+    t++;
+    if(t> (times*8)){ clearInterval(id); redf.style.opacity = 0; }
+  }, 140);
+}
+
+// flicker effect
+function flickerPulse(){
+  flick.style.opacity = 0.02 + Math.random()*0.08;
+  setTimeout(()=> flick.style.opacity = 0, 120);
+}
+
+// alarm sound (WebAudio)
+let audioCtx, osc;
+function startAlarm(){
+  if(audioCtx) return;
+  try{
+    audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.value = 420; // scary pitch
+    gain.gain.value = 0.02;
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    // slight frequency wobble
+    setInterval(()=> {
+      if(!osc) return;
+      osc.frequency.value = 360 + Math.random()*200;
+    }, 300);
+  }catch(e){ console.warn("Audio not allowed", e) }
+}
+function stopAlarm(){
+  try{ if(osc) { osc.stop(); osc.disconnect(); osc=null } if(audioCtx){ audioCtx.close(); audioCtx=null } }catch(e){}
+}
+
+// Panic mode: intensify visuals & progress
+document.getElementById('panicBtn').addEventListener('click', ()=>{
+  panic = true;
+  appendLog("PANIC MODE ENABLED - FORCING TRANSFER...");
+  status.innerText = "PANIC";
+  startAlarm();
+  redFlash(8);
+});
+
+// Stop prank
+function stopAll(){
+  running = false;
+  stopAlarm();
+  appendLog("PRANK STOPPED BY USER. CLEAN EXIT.");
+  barEl.style.width = '0%';
+  // gentle fade out visuals
+  document.querySelector('.overlay').style.transition = 'opacity 0.8s';
+  document.querySelector('.overlay').style.opacity = 0.35;
+  redf.style.transition = 'opacity .5s'; redf.style.opacity = 0;
+  flick.style.transition = 'opacity .5s'; flick.style.opacity = 0;
+  status.innerText = "STOPPED";
+}
+document.getElementById('stopBtn').addEventListener('click', stopAll);
+document.addEventListener('keydown', (e)=> { if(e.key === 'Escape') stopAll(); });
+
+// matrix canvas background
+const canvas = document.getElementById('matrixCanvas');
+const ctx = canvas.getContext('2d');
+let width, height, columns, drops;
+
+function initMatrix(){
+  resize();
+  drops = Array.from({length:columns}).map(()=> Math.floor(Math.random()*height/20));
+  ctx.fillStyle = "rgba(0,0,0,0.4)";
+  ctx.font = "14px monospace";
+}
+function resize(){
+  canvas.width = innerWidth;
+  canvas.height = innerHeight;
+  width = canvas.width;
+  height = canvas.height;
+  columns = Math.floor(width/14);
+}
+window.addEventListener('resize', ()=> { resize(); initMatrix(); });
+
+// draw loop
+function draw(){
+  ctx.fillStyle = "rgba(0,0,0,0.2)";
+  ctx.fillRect(0,0,width,height);
+  ctx.fillStyle = "#00ff88";
+  ctx.font = "14px monospace";
+  for(let i=0;i<columns;i++){
+    const text = String.fromCharCode(33 + Math.floor(Math.random()*94));
+    ctx.fillText(text, i*14, drops[i]*14);
+    if(drops[i]*14 > height && Math.random() > 0.975) drops[i] = 0;
+    drops[i]++;
+  }
+  requestAnimationFrame(draw);
+}
+
+// small periodic visual pulses
+setInterval(()=> { flickerPulse(); if(Math.random()<0.15) redFlash(1); }, 800);
+
+// start
+initMatrix();
+draw();
+runSequence();
+startAlarm(); // starts sound; browsers may block until user interaction — that's okay
+
+// tiny initial logs
+appendLog("BOOTSTRAP -> loader.js");
+appendLog("LOADING MODULES: [net, fs_sim, exfil, cleanup]");
+appendLog("ATTACK VECTOR -> SIMULATED_PAYLOAD_v2.1");
+
+// initial type lines with delay
+setTimeout(()=> typeLine(">>> BREACH detected. Kernel panic withheld (simulated)."), 1200);
+setTimeout(()=> typeLine(">>> Opening tunnels to multiple remote endpoints..."), 2200);
+
+// small auto-append to look busy
+const autoId = setInterval(()=> {
+  if(!running) { clearInterval(autoId); return; }
+  const picks = [
+    "Scanning local volumes...",
+    "Extracting credentials...",
+    "Wiping traces...",
+    `Connected -> ${randIP()}:443`,
+    "Compressing payload...",
+    "Uploading shard #"+Math.floor(Math.random()*9999)
+  ];
+  appendLog(picks[Math.floor(Math.random()*picks.length)]);
+}, 2200);
+
+// make it look more frantic if panic toggled
+setInterval(()=> {
+  if(panic && running){
+    appendLog("PANIC: FORCING TCP SESSIONS -> " + randIP()+":"+Math.floor(Math.random()*64000));
+    redFlash(2);
+  }
+}, 3500);
+
+</script>
+</body>
 </html>
