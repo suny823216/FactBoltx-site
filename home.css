@@ -1,60 +1,87 @@
+/* ===========================
+   Premium Dark Glass UI + Live Animated Background
+   Size preserved, only styles upgraded
+   =========================== */
+
 body {
   margin: 0;
   font-family: 'Segoe UI', sans-serif;
-  background-color: #0e0e0e;
+  background: linear-gradient(270deg, #0e0e0e, #1a1a1a, #141414, #0f0f0f);
+  background-size: 800% 800%;
+  animation: bgAnimation 18s ease infinite;
   color: #fff;
+  overflow-x: hidden;
 }
 
+@keyframes bgAnimation {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Top bar */
 .top-bar {
-  
   text-align: center;
   margin: 20px 0;
+  padding: 10px;
+  background: rgba(20, 20, 20, 0.5);
+  backdrop-filter: blur(8px);
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(255,255,255,0.05);
 }
 
+/* Upload form */
 .upload-form {
   width: 100%;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: 12px; /* 👈 यही gap डाल रहा है */
+  gap: 12px;
 }
-
 
 .upload-form input,
 .upload-form textarea {
   width: 70%;
-  box-sizing: border-box;
-   margin: 0 auto; /* 👈 यही उन्हें center में लाएगा */
-}
-
-
-.upload-form input,
-.upload-form textarea {
+  margin: 0 auto;
   padding: 12px;
   border: none;
   border-radius: 8px;
-  background: #2a2a2a;
+  background: rgba(42,42,42,0.8);
+  backdrop-filter: blur(4px);
   color: white;
+  box-shadow: 0 0 10px rgba(255,255,255,0.05);
+  transition: 0.3s ease;
+}
+
+.upload-form input:focus,
+.upload-form textarea:focus {
+  outline: none;
+  box-shadow: 0 0 12px rgba(0,255,196,0.5);
 }
 
 .upload-form button {
   padding: 7px;
-  background: #e50914;
+  background: linear-gradient(90deg, #e50914, #ff4c4c);
   border: none;
   color: white;
   border-radius: 8px;
   cursor: pointer;
-  transition: background 0.3s;
+  font-weight: 600;
+  transition: 0.3s ease;
+  box-shadow: 0 4px 15px rgba(229,9,20,0.4);
 }
 
 .upload-form button:hover {
-  background: #f40612;
+  background: linear-gradient(90deg, #ff1a25, #ff6666);
+  transform: scale(1.05);
 }
 
+/* Container */
 .container {
   max-width: 600px;
   margin: 0 auto;
-  background: #1e1e1e;
+  background: rgba(30,30,30,0.75);
+  backdrop-filter: blur(10px);
   padding: 25px;
   border-radius: 12px;
   box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
@@ -64,27 +91,39 @@ body {
 h1 {
   margin-bottom: 20px;
   font-size: 1.8rem;
+  color: #00ffc3;
 }
 
+/* Select, textarea */
 select,
 textarea {
   width: 90%;
   padding: 12px;
   margin-bottom: 15px;
-  background: #2a2a2a;
+  background: rgba(42,42,42,0.8);
   color: white;
   border: 1px solid #444;
   border-radius: 8px;
+  transition: 0.3s;
 }
 
+select:focus,
+textarea:focus {
+  border-color: #00ffc3;
+  box-shadow: 0 0 10px rgba(0,255,195,0.5);
+}
+
+/* Video thumbnail */
 .video-thumb {
   width: 100%;
   max-height: 300px;
   border-radius: 10px;
   margin-bottom: 15px;
   object-fit: cover;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.4);
 }
 
+/* Button group */
 .button-group {
   display: flex;
   flex-wrap: wrap;
@@ -98,66 +137,48 @@ textarea {
   border-radius: 8px;
   font-weight: bold;
   cursor: pointer;
-  transition: 0.3s;
+  transition: 0.3s ease;
 }
 
 .btn.blue {
-  background-color: #3c52ff;
+  background: linear-gradient(90deg, #3c52ff, #6a80ff);
   color: white;
+  box-shadow: 0 4px 15px rgba(60,82,255,0.4);
 }
 
 .btn.green {
-  background-color: #3fb950;
+  background: linear-gradient(90deg, #3fb950, #64d97a);
   color: white;
+  box-shadow: 0 4px 15px rgba(63,185,80,0.4);
 }
 
 .btn.red {
-  background-color: #d9534f;
+  background: linear-gradient(90deg, #d9534f, #ff6b69);
   color: white;
+  box-shadow: 0 4px 15px rgba(217,83,79,0.4);
 }
 
 .btn:hover {
-  opacity: 0.85;
+  opacity: 0.9;
+  transform: scale(1.05);
 }
+
+/* Readonly box */
 .readonly-box {
-  background-color: #1e1e1e;
+  background-color: rgba(30,30,30,0.75);
   color: white;
   padding: 10px;
   border-radius: 8px;
   margin-top: 10px;
   white-space: pre-wrap;
   min-height: 80px;
-}
-/* === Loader and Blur === */
-#loadingOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(14, 14, 14, 0.9);
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   backdrop-filter: blur(6px);
 }
 
-.loader {
-  border: 6px solid #ccc;
-  border-top: 6px solid #00bfff;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  animation: spin 1s linear infinite;
-}
+/* Loader */
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
 
-/* Blur effect on content */
+
 body.loading .container,
 body.loading .top-bar,
 body.loading #uploadContainer {
@@ -165,15 +186,17 @@ body.loading #uploadContainer {
   pointer-events: none;
   user-select: none;
 }
+
+/* Puzzle button */
 .puzzle-btn {
   display: inline-block;
   background-color: #00ffc3;
   color: #000;
-  padding: 6px 12px;          /* छोटा padding */
-  margin: 10px 5px;           /* कम margin */
-  border-radius: 2px;         /* थोड़ा गोल कोना */
+  padding: 6px 12px;
+  margin: 10px 5px;
+  border-radius: 4px;
   font-weight: 500;
-  font-size: 8px;            /* छोटा font */
+  font-size: 8px;
   text-decoration: none;
   transition: 0.3s ease;
 }
@@ -182,6 +205,7 @@ body.loading #uploadContainer {
   background-color: #00c6a0;
   color: #fff;
 }
+
 @keyframes jump {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-1.5px); }
@@ -192,23 +216,26 @@ body.loading #uploadContainer {
   transition: transform 0.3s ease;
 }
 
+/* Upload button */
 .upload-btn{
   display: inline-block;
   background-color: #00ffc3;
   color: #000;
-  padding: 6px 12px;          /* छोटा padding */
-  margin: 10px 5px;           /* कम margin */
-  border-radius: 2px;         /* थोड़ा गोल कोना */
+  padding: 6px 12px;
+  margin: 10px 5px;
+  border-radius: 4px;
   font-weight: 500;
-  font-size: 8px;            /* छोटा font */
+  font-size: 8px;
   text-decoration: none;
   transition: 0.3s ease;
 }
-.upload-btn:hover{
 
-   background-color: #00c6a0;
+.upload-btn:hover{
+  background-color: #00c6a0;
   color: #fff;
 }
+
+/* Upload form panel */
 .upload-form {
   display: flex;
   flex-direction: column;
@@ -219,20 +246,10 @@ body.loading #uploadContainer {
   margin-left: auto;
   margin-right: auto;
   padding: 20px;
-  background-color: #1e1e1e;
+  background-color: rgba(30,30,30,0.8);
+  backdrop-filter: blur(10px);
   border-radius: 15px;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
-}
-
-.upload-form input,
-.upload-form textarea {
-  padding: 12px;
-  border-radius: 10px;
-  border: none;
-  outline: none;
-  font-size: 16px;
-  background-color: #2a2a2a;
-  color: #fff;
+  box-shadow: 0 0 10px rgba(255,255,255,0.1);
 }
 
 .upload-form textarea {
@@ -242,37 +259,42 @@ body.loading #uploadContainer {
 
 .upload-form button {
   padding: 12px;
-  background-color: red;
+  background: linear-gradient(90deg, #e50914, #ff4c4c);
   color: white;
   border: none;
   border-radius: 25px;
   font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
+  transition: 0.3s ease;
 }
 
 .upload-form button:hover {
-  background-color: #cc0000;
+  background: linear-gradient(90deg, #ff1a25, #ff6666);
   transform: scale(1.05);
 }
+
+/* Watch now button */
 #watchNowBtn {
   display: inline-block;
-  font-size: 14px;         /* छोटा font */
-  padding: 6px 12px;       /* कम padding */
-  background-color: #1e88e5; /* नीला background */
+  font-size: 14px;
+  padding: 6px 12px;
+  background-color: #1e88e5;
   color: white;
   text-decoration: none;
   border-radius: 4px;
-  transition: background-color 0.3s ease;
+  transition: 0.3s ease;
   margin-top: 10px;
 }
 
 #watchNowBtn:hover {
-  background-color: #1565c0;  /* hover effect */
+  background-color: #1565c0;
 }
+
 #watchNowBtn:active {
   transform: scale(0.95);
 }
+
+/* Share buttons */
 .share-buttons {
   margin-top: 15px;
   display: flex;
@@ -291,7 +313,7 @@ body.loading #uploadContainer {
   font-weight: 500;
   border-radius: 6px;
   font-size: 14px;
-  transition: background 0.3s ease, transform 0.2s;
+  transition: 0.3s ease;
 }
 
 .share-buttons a:hover {
@@ -310,11 +332,11 @@ body.loading #uploadContainer {
   background-color: #1DA1F2;
 }
 
-/* 🆕 Extra spacing between share-buttons and other buttons */
 .share-buttons + .action-buttons {
   margin-top: 20px;
 }
 
+/* Action buttons */
 .action-buttons {
   display: flex;
   justify-content: center;
@@ -329,7 +351,7 @@ body.loading #uploadContainer {
   border-radius: 6px;
   border: none;
   cursor: pointer;
-  transition: background 0.3s ease, transform 0.2s;
+  transition: 0.3s ease;
 }
 
 .action-buttons button:hover {
@@ -351,27 +373,32 @@ body.loading #uploadContainer {
   color: white;
 }
 
+/* Custom dropdown */
 .custom-dropdown {
   position: relative;
   width: 90%;
   margin: 20px auto;
-  font-family: 'Segoe UI', sans-serif;
 }
 
 .selected {
-  background-color: #1e1e1e;
+  background-color: rgba(30,30,30,0.75);
   color: white;
   padding: 14px;
   border-radius: 8px;
   border: 1px solid #444;
   cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.selected:hover {
+  border-color: #00ffc3;
 }
 
 .options {
   position: absolute;
   top: 100%;
   width: 100%;
-  background-color: #1e1e1e;
+  background-color: rgba(30,30,30,0.9);
   border: 1px solid #444;
   border-radius: 8px;
   display: none;
@@ -388,8 +415,9 @@ body.loading #uploadContainer {
 }
 
 .options div:hover {
-  background-color: #2a2a2a;
+  background-color: rgba(42,42,42,0.9);
 }
+
 .selected::after {
   content: "▼"; 
   float: right;
@@ -398,6 +426,46 @@ body.loading #uploadContainer {
   font-size: 14px;
   transition: transform 0.3s ease;
 }
+
 .selected.open::after {
   transform: rotate(180deg); 
+}
+#loadingOverlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.6); /* dark overlay */
+  backdrop-filter: blur(8px); /* blur intensity yaha set hota hai */
+  -webkit-backdrop-filter: blur(8px); /* Safari support */
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+
+.loader {
+  display: flex;
+  gap: 6px;
+}
+
+.loader div {
+  width: 10px;
+  height: 10px;
+  background: #3b82f6;
+  border-radius: 50%;
+  animation: bounce 0.6s infinite alternate;
+}
+
+.loader div:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.loader div:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes bounce {
+  to {
+    transform: translateY(-10px);
+    opacity: 0.7;
+  }
 }
