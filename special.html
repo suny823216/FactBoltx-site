@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>VIBE4EVER - Live YouTube</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    body {margin:0; font-family: Arial, sans-serif; background:#111; color:#fff; transition:0.3s;}
+    
+    header {
+      background:#111;
+      text-align:center;
+      padding:10px;
+      box-shadow:0 2px 8px rgba(0,0,0,.6);
+      position:relative;
+      z-index:1001;
+    }
+
+    header img.banner {width:100%; max-height:180px; object-fit:cover; border-radius:10px;}
+    .channel-info {display:flex; align-items:center; justify-content:center; margin-top:-30px;}
+    .channel-info img {width:70px; height:70px; border-radius:50%; border:3px solid #fff; margin-right:10px;}
+    .channel-info h2 {font-size:18px; margin:0;}
+    .channel-info p {font-size:13px; color:#bbb; margin:0;}
+
+    .controls {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:10px 15px; background:#000; position:sticky; top:0; z-index:1000;
+    }
+    .controls input {
+      flex:1; padding:10px 15px; border-radius:25px; border:none; outline:none;
+      font-size:15px; background:#222; color:#fff;
+      box-shadow:inset 0 2px 6px rgba(0,0,0,.5); transition:0.3s;
+    }
+    .controls input:focus {background:#333;}
+    .controls button {margin-left:10px; padding:10px 14px; border:none; border-radius:25px; cursor:pointer; background:#ff0000; color:#fff; font-size:16px;}
+
+    .tabs {
+      display:flex; justify-content:center; gap:8px; margin:0; flex-wrap:wrap;
+      position:sticky; top:55px; background:#111; padding:10px; z-index:999;
+    }
+    .tabs button {
+      background:#333; color:#fff; border:none; padding:10px 18px;
+      border-radius:25px; cursor:pointer; font-size:13px; transition:0.3s;
+    }
+    .tabs button:hover {background:#444;}
+    .tabs button.active {background:#ff0000; color:#fff;}
+
+    .videos {
+      display:grid; grid-template-columns:repeat(4,1fr);
+      gap:15px; padding:15px;
+    }
+    .video {
+      background:#222; border-radius:12px; padding:8px;
+      box-shadow:0 4px 10px rgba(0,0,0,.6); transition:transform .3s;
+    }
+    .video:hover {transform:scale(1.04);}
+    .video img {width:100%; border-radius:10px; cursor:pointer;}
+    .video h3 {font-size:14px; margin:8px 0 5px;}
+    .video p {font-size:12px; color:#aaa; margin:0;}
+    .video .actions {display:flex; justify-content:space-between; margin-top:6px;}
+    .video .actions button {background:none; border:none; color:#ff0000; cursor:pointer; font-size:14px;}
+
+    #playerModal {display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.95); justify-content:center; align-items:center; z-index:2000;}
+    #playerModal iframe {width:95%; height:70%; border:none; border-radius:10px;}
+    #closeBtn {position:absolute; top:20px; right:30px; font-size:30px; color:#fff; cursor:pointer; z-index:2001;}
+
+    #topBtn {position:fixed; bottom:20px; right:20px; background:#ff0000; color:#fff; border:none; padding:10px 15px; border-radius:50%; cursor:pointer; font-size:20px; box-shadow:0 0 15px #ff0000; animation: glow 1.5s infinite alternate;}
+    @keyframes glow { from{box-shadow:0 0 5px #ff0000;} to{box-shadow:0 0 20px #ff5555;} }
+
+    .loader {display:flex; justify-content:center; margin-top:30px;}
+    .loader div {width:15px; height:15px; margin:5px; border-radius:50%; background:#ff0000; animation: bounce 0.6s infinite alternate;}
+    .loader div:nth-child(2){animation-delay:0.2s;}
+    .loader div:nth-child(3){animation-delay:0.4s;}
+    @keyframes bounce{ to{opacity:.3; transform:translateY(-10px);} }
+
+    .light {background:#f9f9f9; color:#000;}
+    .light header {background:#fff;}
+    .light .video {background:#fff;}
+    .light .tabs button {background:#ddd; color:#000;}
+    .light .tabs button.active {background:#ff0000; color:#fff;}
+    .light .controls input {background:#fff; color:#000;}
+
+    @media(max-width:1024px){.videos{grid-template-columns:repeat(3,1fr);} }
+    @media(max-width:768px){.videos{grid-template-columns:repeat(3,1fr);} }
+    @media(max-width:480px){.videos{grid-template-columns:repeat(2,1fr);} }
+  </style>
+</head>
+<body>
+  <header>
+    <img id="banner" class="banner" src="" alt="Banner">
+    <div class="channel-info">
+      <img id="logo" src="" alt="Channel Logo">
+      <div>
+        <h2 id="channelName">Loading...</h2>
+        <p><span id="subs">0</span> subscribers • <span id="videoCount">0</span> videos</p>
+      </div>
+    </div>
+  </header>
+
+  <div class="controls">
+    <input type="text" id="searchBox" placeholder="🔍 Searching...">
+    <button id="themeToggle">🌙</button>
+  </div>
+
+  <div class="tabs">
+    <button class="active" data-playlist="">All</button>
+    <button id="favTab"><i class="fa-solid fa-star"></i> Favorites</button>
+    <button id="trendTab"><i class="fa-solid fa-fire"></i> Trending</button>
+  </div>
+
+  <section class="videos" id="videoList"></section>
+  <div class="loader" id="loader"><div></div><div></div><div></div></div>
+
+  <div id="playerModal">
+    <span id="closeBtn">&times;</span>
+    <iframe id="ytPlayer" src="" allowfullscreen></iframe>
+  </div>
+
+  <button id="topBtn">↑</button>
+
+<script>
+const API_KEY = "AIzaSyAa5mJThKeXqIbcB_pBIE4jOlTw04Ej2fU"; // 👈 apna YouTube API key yahan lagao
+const CHANNEL_ID = "UCh8GsXvif0i5ez9T9s4ZxGQ";
+
+let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+
+const tabButtons = document.querySelectorAll(".tabs button");
+tabButtons.forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    tabButtons.forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+  });
+});
+
+async function loadChannel(){
+  let url = `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics,brandingSettings&id=${CHANNEL_ID}&key=${API_KEY}`;
+  let res = await fetch(url);
+  let data = await res.json();
+  let ch = data.items[0];
+  document.getElementById("channelName").innerText = ch.snippet.title;
+  document.getElementById("subs").innerText = ch.statistics.subscriberCount;
+  document.getElementById("videoCount").innerText = ch.statistics.videoCount;
+  document.getElementById("logo").src = ch.snippet.thumbnails.default.url;
+  document.getElementById("banner").src = ch.brandingSettings.image.bannerExternalUrl;
+  loadVideos();
+  setInterval(loadSubs,10000);
+}
+
+async function loadSubs(){
+  let url = `https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${CHANNEL_ID}&key=${API_KEY}`;
+  let res = await fetch(url);
+  let data = await res.json();
+  document.getElementById("subs").innerText = data.items[0].statistics.subscriberCount;
+}
+
+async function loadVideos(query=""){
+  document.getElementById("loader").style.display="flex";
+  let url = `https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&channelId=${CHANNEL_ID}&part=snippet&order=date&maxResults=12&q=${query}`;
+  let res = await fetch(url);
+  let data = await res.json();
+  displayVideos(data.items);
+}
+
+async function displayVideos(items){
+  let list = document.getElementById("videoList");
+  list.innerHTML = "";
+  for(let item of items){
+    if(item.id.videoId){
+      let statsRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${item.id.videoId}&key=${API_KEY}`);
+      let statsData = await statsRes.json();
+      let stats = statsData.items[0].statistics;
+      let isFav = favorites.includes(item.id.videoId);
+      let div = document.createElement("div");
+      div.className="video";
+      div.innerHTML = `
+        <img src="${item.snippet.thumbnails.medium.url}" data-id="${item.id.videoId}">
+        <h3>${item.snippet.title}</h3>
+        <p><i class="fa-regular fa-eye"></i> ${stats.viewCount} • <i class="fa-solid fa-calendar"></i> ${new Date(item.snippet.publishedAt).toDateString()}</p>
+        <div class="actions">
+          <button onclick="toggleFavorite('${item.id.videoId}')">${isFav?'<i class="fa-solid fa-star"></i> Remove':'<i class="fa-regular fa-star"></i> Favorite'}</button>
+          <button onclick="navigator.clipboard.writeText('https://youtu.be/${item.id.videoId}');alert('Link Copied!')">🔗 Share</button>
+        </div>
+      `;
+      list.appendChild(div);
+    }
+  }
+  document.getElementById("loader").style.display="none";
+}
+
+function toggleFavorite(id){
+  if(favorites.includes(id)){
+    favorites = favorites.filter(f=>f!==id);
+  } else {
+    favorites.push(id);
+  }
+  localStorage.setItem("favorites", JSON.stringify(favorites));
+  loadVideos();
+}
+
+// Trending
+document.getElementById("trendTab").onclick=async()=>{
+  document.getElementById("loader").style.display="flex";
+  let url = `https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&channelId=${CHANNEL_ID}&part=snippet&order=viewCount&maxResults=12`;
+  let res = await fetch(url);
+  let data = await res.json();
+  displayVideos(data.items);
+};
+
+// Favorites tab
+document.getElementById("favTab").onclick=async()=>{
+  if(favorites.length===0){alert("No favorites yet!");return;}
+  let url = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&id=${favorites.join(",")}&key=${API_KEY}`;
+  let res = await fetch(url);
+  let data = await res.json();
+  let items = data.items.map(v=>({id:{videoId:v.id},snippet:v.snippet}));
+  displayVideos(items);
+};
+
+// ✅ Modal handler (single clean version)
+document.addEventListener("click", e=>{
+  if(e.target.matches(".video img")){
+    e.preventDefault();
+    let vid = e.target.getAttribute("data-id");
+    document.getElementById("ytPlayer").src = `https://www.youtube.com/embed/${vid}?autoplay=1&modestbranding=1&rel=0&enablejsapi=1`;
+    document.getElementById("playerModal").style.display="flex";
+    document.querySelector(".controls").style.display="none";
+    document.querySelector(".tabs").style.display="none";
+  }
+});
+
+document.getElementById("closeBtn").onclick = ()=>{
+  document.getElementById("playerModal").style.display="none";
+  document.getElementById("ytPlayer").src="";
+  document.querySelector(".controls").style.display="flex";
+  document.querySelector(".tabs").style.display="flex";
+};
+
+// ✅ YouTube API for replay
+let tag = document.createElement('script');
+tag.src = "https://www.youtube.com/iframe_api";
+document.body.appendChild(tag);
+
+let player;
+function onYouTubeIframeAPIReady(){
+  player = new YT.Player('ytPlayer', {
+    events:{
+      'onStateChange': onPlayerStateChange
+    }
+  });
+}
+function onPlayerStateChange(event){
+  if(event.data === YT.PlayerState.ENDED){
+    player.playVideo(); // auto replay
+  }
+}
+
+// Search
+document.getElementById("searchBox").addEventListener("input",(e)=>{
+  loadVideos(e.target.value);
+});
+
+// Theme toggle
+document.getElementById("themeToggle").onclick=()=>{
+  document.body.classList.toggle("light");
+  document.getElementById("themeToggle").innerText = document.body.classList.contains("light")?"🌞":"🌙";
+};
+
+document.getElementById("topBtn").onclick = ()=>window.scrollTo({top:0, behavior:"smooth"});
+
+loadChannel();
+</script>
+</body>
+</html>
