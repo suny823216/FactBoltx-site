@@ -2,34 +2,112 @@
 <html lang="hi">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>YouTube Channel Info - Improved</title>
   <link rel="stylesheet" href="style.css" />
+  
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
 </head>
 <body>
 
   <!-- Login Page -->
   <div class="card" id="welcome-screen">
-    <img src="sany.jpg" class="circle-logo" />
+    <img src="suny.png" class="circle-logo" />
     <h1>ENTER CHANNEL NAME</h1>
-    <a href="https://www.instagram.com/rajput_sany1?utm_source=ig_web_button_share_sheet&igsh=a2ZoM3gxY3psa3g=">@rajput_sany1</a>
+    
     <input type="text" id="channel-name" placeholder="Enter channel name" />
     <input type="password" id="channel-password" placeholder="Enter password" style="margin-top: 10px;" />
     <button onclick="loadChannel()">Login ➜</button>
+     <button onclick="showPasswordPopup()" class="copy-btn" style="background: #3498db; margin-top: 20px;">
+        🔐 Show Password
+    </button>
+    <script>
+    function showPasswordPopup() {
+        Swal.fire({
+            title: '💡 Password',
+            text: 'Sany2580',
+            icon: 'info',
+            confirmButtonText: 'Got it!',
+            background: '#222',
+            color: '#fff'
+        });
+    }
+</script>
+    <!-- Time Display -->
+<div id="liveTime"></div>
+
+<style>
+#liveTime {
+  position: fixed;
+  top: 10px;
+  right: 20px;
+  color: #ffffff;
+  font-size: 16px;
+  font-family: 'Courier New', monospace;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 6px 10px;
+  border-radius: 8px;
+  z-index: 1000;
+  box-shadow: 0 0 8px #00ffe0;
+}
+</style>
+
+<script>
+function updateTime() {
+  const now = new Date();
+  const hours = now.getHours().toString().padStart(2, '0');
+  const minutes = now.getMinutes().toString().padStart(2, '0');
+  const seconds = now.getSeconds().toString().padStart(2, '0');
+  const timeString = `${hours}:${minutes}:${seconds}`;
+  document.getElementById('liveTime').textContent = timeString;
+}
+
+setInterval(updateTime, 1000);
+updateTime();
+</script>
+
   </div>
+
 
   <!-- Main Dashboard -->
   <div id="main-container" style="display: none;">
+    <div id="channel-header" style="text-align: center; margin-bottom: 20px;">
+    <img src="channels4_banner1.jpg" src="" alt="Channel Banner" style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 12px;" />
+   <div style="text-align: center; margin-top: 10px;">
+  <h1 style="color: white; margin: 5px 0;">FactBoltx</h1>
+  <p style="color: #aaa; margin: 0;">@FactsBoltX • 1k subscribers • 70 videos</p>
+  <p style="color: #ccc; font-size: 14px; max-width: 600px; margin: 8px auto;">
+    Welcome to factsboltX 😊 – your daily dose of fascinating facts and hidden truths.
+  </p>
+</div><button onclick="toggleForm()" class="copy-btn">➕ Upload Video</button>
+
+<div id="video-form-container" style="display: none; margin-top: 20px;">
+  
+  
+
+  <div style="background: #222; padding: 20px; border-radius: 10px; max-width: 600px; margin: 0 auto;">
+    <input id="new-title" type="text" placeholder="Enter Video Title" class="form-input" /><br><br>
+    <input id="new-id" type="text" placeholder="Enter YouTube Video ID" class="form-input" /><br><br>
+    <input id="new-date" type="date" class="form-input" /><br><br>
+    <textarea id="new-script" rows="5" placeholder="Paste script here" class="form-input"></textarea><br><br>
+    <textarea id="new-hashtags" rows="3" placeholder="Enter hashtags" class="form-input"></textarea><br><br>
+    <button onclick="addNewVideo()" class="copy-btn">✅ Add Video</button>
+  </div>
+  
+</div>
+
+
+  </div>
     <h2 id="channel-subs">Subscribers: ...</h2>
 
     <div id="video-select-container" style="display: none;">
       <label for="video-select">SELECT VIDEO:</label>
       <select id="video-select" onchange="showVideoDetails()"></select>
       
-    </div>
+   
+
 
     <div id="loading-spinner" style="display: none;">
       <img src="https://i.gifer.com/ZZ5H.gif" alt="Loading..." width="60" />
@@ -43,6 +121,9 @@
       <div class="video-title" id="video-title"></div>
 
       <div class="video-script" id="video-script"></div>
+      <button onclick="deleteCurrentVideo()" id="delete-btn" style="margin-top:10px;background:#e74c3c;color:white;padding:6px 12px;border:none;border-radius:5px;cursor:pointer;">
+  🗑️ 
+</button>
       <button class="copy-btn" id="copy-script-btn" onclick="copyScript()">📋 Copy Script</button>
 
       <div class="badges">
@@ -65,5 +146,18 @@
 
   <!-- Script -->
   <script src="script.js"></script>
+  <script>
+  function toggleForm() {
+    const form = document.getElementById("video-form-container");
+    if (form.style.display === "none") {
+      form.style.display = "block";
+    } else {
+      form.style.display = "none";
+    }
+  }
+</script>
+
+
 </body>
+
 </html>

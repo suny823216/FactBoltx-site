@@ -1,43 +1,166 @@
 const apiKey = "AIzaSyAa5mJThKeXqIbcB_pBIE4jOlTw04Ej2fU";
+const localStorageKey = "ytScriptVideos";
 
-const videos = {
-  "FactsBoltx": {
-   video1: {
-      title: "तीन किलो का फल 😨",
-      videoId: "saR_XrYYou4",
-      date: "2025-07-30",
-      script:`*******`,
-      hashtags: "**********"
+// Default videos object
+const defaultVideos = {
+  "FactBoltx": {
+    video1: {
+      title : "थाईलैंड की नचनिया डिश 😅",
+      videoId : "tlnThD0Wbn0",
+      date : "2025-07-27",
+      script: "***************",
+      hashtags:"*****************",
     },
-
-  video2 : {
-    title: "प्लेन की नाक में छुपा राज 😨",
-    videoId: "Jrg1CQw8GDE",
-    date: "2025-07-26",
-    script: "*************",
-    hashtags: "*********"
-  
-  },
-  
-  video3 : {
-    title: "फ्लेमिंगो क्यों हैं गुलाबी 🤔",
-    videoId: "C-_M5SNSWZc",
-    date: "2025-07-25",
-    script: "*************",
-    hashtags: "*********"
-  }
-    
-    // ⬅️ बाकी Inspire4Ever के videos यहीं डालो
-  
-
-  
+    video2: {
+      title: "Would You Climb Steps for Unforgettable View 👣",
+      videoId: "q1-eYtJ1oxc",
+      date: "2025-07-04",
+      script: `आपकी टांगे भी ऐसे कांपने लगेगी अगर आपने इस आसमानी सीढ़ी पर चढ़ने की कोशिश की तो दर्सल यह चाईना में‌ बने डेनजीया पहाड़ की सीढ़ी है जो लगभग 90 डिग्री तक खड़ी है और यहां आपकी सेफ्टी का कोई खास ध्यान नहीं रखा जाता...`,
+      hashtags: "*NO HASTAGS*"
+    },
+    video3: {
+      title : "क्या शेर का बच्चा अंधा पैदा होता है 😱",
+      videoId : "WXxXIyGKva4",
+      date : "2025-07-09",
+      script: "क्या आप जानते हो शेर का बच्चा अंधा होता है जब वो पैदा होता है...",
+      hashtags: "#LionCub #SherKaBaccha #WildlifeFacts ...",
+    },
+    // बाकी videos को यहां शामिल करें उसी फॉर्मेट में...
+    // video4, video5,...video13
   }
 };
 
+// 1️⃣ LocalStorage से videos लोड करें या default fallback
+let videos = {};
+const savedVideos = localStorage.getItem(localStorageKey);
 
+if (savedVideos) {
+  try {
+    videos = JSON.parse(savedVideos);
+
+    // defaultVideos से merge करें (missing videos भरने के लिए)
+    for (const channel in defaultVideos) {
+      if (!videos[channel]) videos[channel] = {};
+      Object.assign(videos[channel], defaultVideos[channel]);
+    }
+  } catch (e) {
+    console.error("Invalid JSON in localStorage, resetting to default:", e);
+    videos = defaultVideos;
+  }
+} else {
+  videos = defaultVideos;
+}
+
+// 2️⃣ Save merged or default videos to localStorage
+localStorage.setItem(localStorageKey, JSON.stringify(videos));
+
+  
+
+
+function addNewVideo() {
+  const name = document.getElementById('channel-name').value.trim();
+  const title = document.getElementById('new-title').value.trim();
+  const videoId = document.getElementById('new-id').value.trim();
+  const date = document.getElementById('new-date').value.trim();
+  const script = document.getElementById('new-script').value.trim();
+  const hashtags = document.getElementById('new-hashtags').value.trim();
+
+  if (!title || !videoId || !date || !script) {
+     
+
+    Swal.fire({
+      icon: 'warning',
+      title: 'Missing Fields',
+      text: 'Please fill all required fields.',
+      background: '#1e1e2f',
+      color: '#fff'
+    });
+    return;
+  }
+
+  const videoKey = `video${Object.keys(videos[name]).length + 1}`;
+
+  videos[name][videoKey] = {
+    title,
+    videoId,
+    date,
+    script,
+    hashtags: hashtags === "" ? "*NO HASTAGS*" : hashtags
+  };
+
+   // ✅ Save updated videos to localStorage
+  localStorage.setItem("ytScriptVideos", JSON.stringify(videos));
+
+  const select = document.getElementById('video-select');
+  const option = document.createElement('option');
+  option.value = videoKey;
+  option.textContent = title;
+  select.appendChild(option);
+  select.value = videoKey;
+
+  Swal.fire({
+    icon: 'success',
+    title: 'Video Added!',
+    text: 'Your video has been added successfully.',
+    background: '#1e1e2f',
+    color: '#fff'
+  });
+
+  showVideoDetails();
+}
+function deleteCurrentVideo() {
+  const name = document.getElementById('channel-name').value.trim();
+  const key = document.getElementById('video-select').value;
+
+  Swal.fire({
+    title: 'Are you sure?',
+    text: "This video will be permanently deleted.",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#e74c3c',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Yes, delete it!',
+    background: '#1e1e2f',
+    color: '#fff'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // Delete from object
+      delete videos[name][key];
+
+      // Save updated object
+      localStorage.setItem("ytScriptVideos", JSON.stringify(videos));
+
+      // Remove from dropdown
+      const select = document.getElementById('video-select');
+      const optionToRemove = select.querySelector(`option[value="${key}"]`);
+      if (optionToRemove) optionToRemove.remove();
+
+      // Reset UI
+      if (select.options.length > 0) {
+        select.selectedIndex = 0;
+        showVideoDetails();  // Show next available video
+      } else {
+        document.getElementById('video-details').style.display = 'none';
+      }
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Deleted!',
+        text: 'Your video has been deleted.',
+        background: '#1e1e2f',
+        color: '#fff'
+      });
+    }
+  });
+}
 
 function loadChannel() {
-  const name = document.getElementById('channel-name').value.trim();
+const name = document.getElementById('channel-name').value.trim();
+const actualName = Object.keys(videos).find(v => v.toLowerCase() === name.toLowerCase());
+if (!actualName) {
+  // INVALID CHANNEL
+}
+
   const pass = document.getElementById('channel-password').value.trim();
 
   if (!name || !pass) {
@@ -65,7 +188,7 @@ function loadChannel() {
   }
 
   const channelPasswords = {
-  "FactsBoltx": "sany95",
+  "FactBoltx": "Sany2580",
   
 };
 
@@ -191,6 +314,7 @@ function copyScript() {
     .catch(err => console.error("Copy failed:", err));
 }
 
+
 function copyHashtags() {
   const hashtags = document.getElementById('video-hashtags').innerText;
   navigator.clipboard.writeText(hashtags).then(() => {
@@ -216,16 +340,17 @@ function shareTwitter() {
 function loadSubscriberCount(channelName) {
   let channelId;
 
-  if (channelName === "FactsBoltx") {
-    channelId = "UCh8GsXvif0i5ez9T9s4ZxGQ";  // Replace with actual ID
-  } else if (channelName === "Improve4Ever") {
-    channelId = "UCh8GsXvif0i5ez9T9s4ZxGQ"; // 🔁 यहाँ Improve4Ever का channelId भरो
-  } else {
+  if (channelName === "FactBoltx") {
+    channelId = "UCh8GsXvif0i5ez9T9s4ZxGQ";  // ✅ सही channel ID
+  }
+  // Future: else if (channelName === "Inspire4Ever") { channelId = "..." }
+
+  if (!channelId) {
     document.getElementById('channel-subs').innerText = "Subscribers: Unknown";
     return;
   }
 
-  fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${channelId}&key=${apiKey}`)
+ fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${channelId}&key=${apiKey}`)
     .then(res => res.json())
     .then(data => {
       if (data.items && data.items.length > 0) {
@@ -239,13 +364,3 @@ function loadSubscriberCount(channelName) {
       document.getElementById('channel-subs').innerText = "Subscribers: Unknown";
     });
 }
-
-const inputs = document.querySelectorAll('input');
-
-inputs.forEach(input => {
-    input.addEventListener('focus', () => {
-        setTimeout(() => {
-            input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 300); // Keyboard open hone ke thoda baad
-    });
-});
